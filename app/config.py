@@ -13,6 +13,7 @@ The active config is chosen by the FLASK_ENV environment variable
 """
 
 import os                        # standard-library env-var access
+from urllib.parse import quote_plus  # URL-encode credentials for DB URI
 from dotenv import load_dotenv   # loads .env file into os.environ
 
 # Load .env from the project root so all os.getenv() calls below find values
@@ -52,11 +53,13 @@ class DevelopmentConfig(BaseConfig):
 
     DEBUG: bool = True
 
-    # Build MySQL connection URL from individual env vars for clarity
+    # Build MySQL connection URL from individual env vars for clarity.
+    # quote_plus encodes special characters (e.g. @, #, %) in credentials
+    # that would otherwise break URL parsing.
     SQLALCHEMY_DATABASE_URI: str = (
         "mysql+pymysql://"
-        f"{os.getenv('MYSQL_USER', 'root')}:"
-        f"{os.getenv('MYSQL_PASSWORD', '')}@"
+        f"{quote_plus(os.getenv('MYSQL_USER', 'root'))}:"
+        f"{quote_plus(os.getenv('MYSQL_PASSWORD', ''))}@"
         f"{os.getenv('MYSQL_HOST', 'localhost')}:"
         f"{os.getenv('MYSQL_PORT', '3306')}/"
         f"{os.getenv('MYSQL_DATABASE', 'finance_tracker')}"
@@ -100,8 +103,8 @@ class ProductionConfig(BaseConfig):
 
     SQLALCHEMY_DATABASE_URI: str = (
         "mysql+pymysql://"
-        f"{os.getenv('MYSQL_USER', 'root')}:"
-        f"{os.getenv('MYSQL_PASSWORD', '')}@"
+        f"{quote_plus(os.getenv('MYSQL_USER', 'root'))}:"
+        f"{quote_plus(os.getenv('MYSQL_PASSWORD', ''))}@"
         f"{os.getenv('MYSQL_HOST', 'localhost')}:"
         f"{os.getenv('MYSQL_PORT', '3306')}/"
         f"{os.getenv('MYSQL_DATABASE', 'finance_tracker')}"
