@@ -13,11 +13,14 @@ The active config is chosen by the FLASK_ENV environment variable
 """
 
 import os                        # standard-library env-var access
+from pathlib import Path
 from urllib.parse import quote_plus  # URL-encode credentials for DB URI
 from dotenv import load_dotenv   # loads .env file into os.environ
 
-# Load .env from the project root so all os.getenv() calls below find values
-load_dotenv()
+# Resolve the .env file relative to this file (app/config.py → project root/.env)
+# so it is found regardless of the current working directory.
+_ENV_FILE = Path(__file__).resolve().parent.parent / ".env"
+load_dotenv(_ENV_FILE)
 
 
 class BaseConfig:
