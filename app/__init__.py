@@ -14,6 +14,7 @@ from flask_sqlalchemy import SQLAlchemy # ORM integration
 from flask_migrate import Migrate       # Alembic migration wrapper
 from flask_limiter import Limiter       # rate limiting
 from flask_limiter.util import get_remote_address  # IP extractor for limiter
+from flask_cors import CORS             # Cross-Origin Resource Sharing
 
 from app.config import config_by_name, DEFAULT_CONFIG  # our config registry
 
@@ -47,6 +48,12 @@ def create_app(config_name: str = DEFAULT_CONFIG) -> Flask:
     migrate.init_app(app, db)  # bind Alembic migrations
     limiter.init_app(app)   # bind rate limiter
 
+    # Allow the React dev server (localhost:3000) to send credentials
+    CORS(app, supports_credentials=True, origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ])
+
     # ── Register blueprints (route groups) ────────────────────────────────
     _register_blueprints(app)
 
@@ -69,11 +76,13 @@ def _register_blueprints(app: Flask) -> None:
     from app.routes.transactions import transactions_bp
     from app.routes.analytics import analytics_bp
     from app.routes.users import users_bp
+    from app.routes.categories import categories_bp
 
     app.register_blueprint(auth_bp,         url_prefix="/api/auth")
     app.register_blueprint(transactions_bp, url_prefix="/api/transactions")
     app.register_blueprint(analytics_bp,    url_prefix="/api/analytics")
     app.register_blueprint(users_bp,        url_prefix="/api/users")
+    app.register_blueprint(categories_bp,   url_prefix="/api/categories")
 
 
 def _register_error_handlers(app: Flask) -> None:
