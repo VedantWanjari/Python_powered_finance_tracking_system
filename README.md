@@ -169,3 +169,255 @@ Tests use **SQLite in-memory** – no MySQL required.
 
 See `api_documentation.md` for full request/response examples.
 
+---
+
+## 🖥️ API Reference
+
+> Make sure the server is running (`python run.py`) before executing these commands.  
+> All requests that require authentication use a session cookie stored in `cookies.txt`.
+
+---
+
+### 🔐 Authentication
+
+**Register**
+```bash
+curl -c cookies.txt -X POST http://localhost:5000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"username":"alice","email":"alice@example.com","password":"Pass@1234"}'
+```
+
+**Login**
+```bash
+curl -c cookies.txt -b cookies.txt -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"alice","password":"Pass@1234"}'
+```
+
+**View your profile**
+```bash
+curl -b cookies.txt http://localhost:5000/api/auth/me
+```
+
+**Update your profile**
+```bash
+curl -b cookies.txt -X PUT http://localhost:5000/api/auth/me \
+  -H "Content-Type: application/json" \
+  -d '{"email":"newemail@example.com","username":"alice_new"}'
+```
+
+**Logout**
+```bash
+curl -b cookies.txt -X POST http://localhost:5000/api/auth/logout
+```
+
+---
+
+### 💸 Transactions
+
+**Create a record**
+```bash
+curl -b cookies.txt -X POST http://localhost:5000/api/transactions/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": 500,
+    "transaction_type": "expense",
+    "date": "2024-03-15",
+    "description": "Grocery shopping",
+    "category_id": 1,
+    "notes": "Weekly groceries",
+    "tags": "food,weekly"
+  }'
+```
+> `transaction_type` must be `"income"` or `"expense"`
+
+**View all records (paginated)**
+```bash
+curl -b cookies.txt "http://localhost:5000/api/transactions/?page=1&per_page=20"
+```
+
+**View a single record by ID**
+```bash
+curl -b cookies.txt http://localhost:5000/api/transactions/42
+```
+
+**Update a record**
+```bash
+curl -b cookies.txt -X PUT http://localhost:5000/api/transactions/42 \
+  -H "Content-Type: application/json" \
+  -d '{"amount": 650, "description": "Updated grocery run", "category_id": 2}'
+```
+
+**Delete a record**
+```bash
+curl -b cookies.txt -X DELETE http://localhost:5000/api/transactions/42
+```
+
+---
+
+### 🔍 Filter Records
+
+**By date range**
+```bash
+curl -b cookies.txt "http://localhost:5000/api/transactions/?date_from=2024-01-01&date_to=2024-03-31"
+```
+
+**By category**
+```bash
+curl -b cookies.txt "http://localhost:5000/api/transactions/?category_id=1"
+```
+
+**By type**
+```bash
+curl -b cookies.txt "http://localhost:5000/api/transactions/?transaction_type=expense"
+```
+
+**By amount range**
+```bash
+curl -b cookies.txt "http://localhost:5000/api/transactions/?amount_min=100&amount_max=1000"
+```
+
+**By tag**
+```bash
+curl -b cookies.txt "http://localhost:5000/api/transactions/?tags=food"
+```
+
+**Search by keyword**
+```bash
+curl -b cookies.txt "http://localhost:5000/api/transactions/search?q=grocery"
+```
+
+**Combine multiple filters**
+```bash
+curl -b cookies.txt "http://localhost:5000/api/transactions/?date_from=2024-01-01&date_to=2024-12-31&transaction_type=expense&category_id=1&sort_by=amount&sort_order=desc&page=1&per_page=10"
+```
+
+**All filter parameters**
+
+| Parameter | Example | Description |
+|-----------|---------|-------------|
+| `date_from` | `2024-01-01` | Start date (YYYY-MM-DD) |
+| `date_to` | `2024-12-31` | End date (YYYY-MM-DD) |
+| `transaction_type` | `income` / `expense` | Type of transaction |
+| `category_id` | `1` | Category ID |
+| `amount_min` | `100` | Minimum amount |
+| `amount_max` | `5000` | Maximum amount |
+| `search` | `grocery` | Keyword in description |
+| `tags` | `food` | Tag filter |
+| `sort_by` | `date` / `amount` | Sort field |
+| `sort_order` | `asc` / `desc` | Sort direction |
+| `page` | `1` | Page number |
+| `per_page` | `20` | Records per page |
+
+---
+
+### 📤 Export & Bulk
+
+**Export as CSV**
+```bash
+curl -b cookies.txt "http://localhost:5000/api/transactions/export/csv?date_from=2024-01-01&date_to=2024-12-31&transaction_type=expense" \
+  -o transactions.csv
+```
+
+**Export as JSON**
+```bash
+curl -b cookies.txt "http://localhost:5000/api/transactions/export/json?date_from=2024-01-01&date_to=2024-12-31" \
+  -o transactions.json
+```
+
+**Bulk create transactions** *(analyst / admin only)*
+```bash
+curl -b cookies.txt -X POST http://localhost:5000/api/transactions/bulk \
+  -H "Content-Type: application/json" \
+  -d '{
+    "transactions": [
+      {"amount": 200, "transaction_type": "expense", "date": "2024-03-01", "description": "Coffee"},
+      {"amount": 3000, "transaction_type": "income",  "date": "2024-03-05", "description": "Salary"}
+    ]
+  }'
+```
+
+---
+
+### 📊 Analytics & Reports
+
+**Dashboard summary**
+```bash
+curl -b cookies.txt http://localhost:5000/api/analytics/dashboard
+```
+
+**Category breakdown**
+```bash
+curl -b cookies.txt "http://localhost:5000/api/analytics/categories?start_date=2024-01-01&end_date=2024-03-31"
+```
+
+**Monthly breakdown**
+```bash
+curl -b cookies.txt http://localhost:5000/api/analytics/monthly/2024/3
+```
+
+**Budget status**
+```bash
+curl -b cookies.txt "http://localhost:5000/api/analytics/budget?month=2024-03"
+```
+
+**Trend analysis — last N months** *(analyst / admin only)*
+```bash
+curl -b cookies.txt "http://localhost:5000/api/analytics/trends?months=6"
+```
+
+**Full report** *(analyst / admin only)*
+```bash
+curl -b cookies.txt "http://localhost:5000/api/analytics/report?months=3"
+```
+
+---
+
+### 👥 User Management *(admin only)*
+
+**List all users**
+```bash
+curl -b cookies.txt "http://localhost:5000/api/users/?page=1&per_page=20"
+```
+
+**View a specific user**
+```bash
+curl -b cookies.txt http://localhost:5000/api/users/5
+```
+
+**Update a user's role or status**
+```bash
+curl -b cookies.txt -X PUT http://localhost:5000/api/users/5 \
+  -H "Content-Type: application/json" \
+  -d '{"role": "analyst", "is_active": true}'
+```
+> `role` must be `viewer`, `analyst`, or `admin`
+
+**Deactivate a user**
+```bash
+curl -b cookies.txt -X DELETE http://localhost:5000/api/users/5
+```
+
+**View a user's audit log**
+```bash
+curl -b cookies.txt "http://localhost:5000/api/users/5/audit-log?page=1&per_page=20"
+```
+
+---
+
+### 🛠️ One-Time CLI Setup
+
+```bash
+# Initialize database tables
+flask init-db
+
+# Create an admin user interactively
+flask create-admin
+
+# Seed default categories and a demo user with sample transactions
+flask seed-data
+
+# Full setup in one command (tables + categories + admin/Admin@1234)
+python setup_db.py
+```
+
