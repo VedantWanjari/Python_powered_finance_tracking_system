@@ -11,10 +11,10 @@ from typing import Optional, Tuple
 
 from app import db
 from app.models.user import User
-from app.models.audit_log import AuditLog
 from app.services.exceptions import (
     ResourceNotFound, ConflictError, ValidationError, Forbidden,
 )
+from app.utils.audit import write_audit_log
 
 logger = logging.getLogger(__name__)
 
@@ -153,11 +153,11 @@ class UserService:
                 raise ConflictError("Username is already taken.")
             user.username = data["username"]
 
-        user.updated_at = datetime.datetime.utcnow()
+        user.updated_at = datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
         db.session.commit()
 
         # Write audit entry
-        _write_audit(actor_id, "UPDATE_USER", "User", user_id, old_data, user.to_dict())
+        write_audit_log(actor_id, "UPDATE_USER", "User", user_id, old_data, user.to_dict())
 
         logger.info("User %s updated by actor %s", user_id, actor_id)
         return user
@@ -187,10 +187,10 @@ class UserService:
         if data.get("is_active") is not None:
             user.is_active = data["is_active"]
 
-        user.updated_at = datetime.datetime.utcnow()
+        user.updated_at = datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
         db.session.commit()
 
-        _write_audit(actor_id, "ADMIN_UPDATE_USER", "User", user_id, old_data, user.to_dict())
+        write_audit_log(actor_id, "ADMIN_UPDATE_USER", "User", user_id, old_data, user.to_dict())
         return user
 
     @staticmethod
@@ -207,28 +207,9 @@ class UserService:
 
         user.is_active = False
         db.session.commit()
-        _write_audit(actor_id, "DEACTIVATE_USER", "User", user_id, {}, {})
+        write_audit_log(actor_id, "DEACTIVATE_USER", "User", user_id, {}, {})
         logger.info("User %s deactivated by admin %s", user_id, actor_id)
 
 
 # ── Private helpers ───────────────────────────────────────────────────────────
-
-def _write_audit(
-    user_id: int, action: str, resource_type: str,
-    resource_id, old_values: dict, new_values: dict,
-) -> None:
-    """Append a row to the audit_logs table (fire-and-forget)."""
-    try:
-        log = AuditLog(
-            user_id=user_id,
-            action=action,
-            resource_type=resource_type,
-            resource_id=str(resource_id),
-        )
-        log.old_values = old_values
-        log.new_values = new_values
-        db.session.add(log)
-        db.session.commit()
-    except Exception:   # noqa: BLE001
-        # Audit failure must never break the main operation
-        logger.exception("Failed to write audit log for %s", action)
+# Note: _write_audit has been consolidated into app.utils.audit.write_audit_log.

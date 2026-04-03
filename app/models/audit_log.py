@@ -16,6 +16,8 @@ import datetime
 import json
 from app import db
 
+_utcnow = lambda: datetime.datetime.now(datetime.UTC).replace(tzinfo=None)  # noqa: E731
+
 
 class AuditLog(db.Model):
     """One row = one sensitive action performed by one user."""
@@ -48,7 +50,7 @@ class AuditLog(db.Model):
     user_agent = db.Column(db.String(255), nullable=True)
 
     created_at = db.Column(db.DateTime, nullable=False,
-                           default=datetime.datetime.utcnow, index=True)
+                           default=_utcnow, index=True)
 
     # ── JSON helpers ──────────────────────────────────────────────────────
 

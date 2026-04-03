@@ -109,3 +109,59 @@ class TestDeleteTransaction:
         txn_id = sample_transactions[0]["id"]
         resp = client.delete(f"/api/transactions/{txn_id}")
         assert resp.status_code == 403
+
+
+class TestBulkCreate:
+    def test_bulk_create_analyst_success(self, client, sample_analyst):
+        login(client, "analyst", "Analyst@1234")
+        today = datetime.date.today().isoformat()
+        resp = client.post("/api/transactions/bulk", json={
+            "transactions": [
+                {"amount": 200, "transaction_type": "expense", "date": today, "description": "Coffee"},
+                {"amount": 3000, "transaction_type": "income",  "date": today, "description": "Salary"},
+            ]
+        })
+        assert resp.status_code == 201
+        assert resp.get_json()["data"]["created_count"] == 2
+
+    def test_bulk_create_viewer_forbidden(self, client, sample_user):
+        login(client, "testuser", "Test@1234")
+        resp = client.post("/api/transactions/bulk", json={"transactions": [VALID_TXN]})
+        assert resp.status_code == 403
+
+    def test_bulk_create_empty_list_rejected(self, client, sample_analyst):
+        login(client, "analyst", "Analyst@1234")
+        resp = client.post("/api/transactions/bulk", json={"transactions": []})
+        assert resp.status_code == 400
+
+    def test_bulk_create_invalid_item_rejected(self, client, sample_analyst):
+        login(client, "analyst", "Analyst@1234")
+        today = datetime.date.today().isoformat()
+        resp = client.post("/api/transactions/bulk", json={
+            "transactions": [
+                {"amount": -50, "transaction_type": "expense", "date": today, "description": "Bad"},
+            ]
+        })
+        assert resp.status_code == 400
+
+
+class TestSearchTransactions:
+    def test_search_returns_matching_results(self, client, sample_user, sample_transactions):
+        login(client, "testuser", "Test@1234")
+        # sample_transactions include descriptions like "Expense 0", "Income 0" etc.
+        resp = client.get("/api/transactions/search?q=Expense")
+        assert resp.status_code == 200
+        items = resp.get_json()["data"]
+        assert len(items) > 0
+        assert all("expense" in item["description"].lower() or
+                   "expense" in (item.get("notes") or "").lower()
+                   for item in items)
+
+    def test_search_missing_query_returns_400(self, client, sample_user):
+        login(client, "testuser", "Test@1234")
+        resp = client.get("/api/transactions/search")
+        assert resp.status_code == 400
+
+    def test_search_unauthenticated_returns_401(self, client):
+        resp = client.get("/api/transactions/search?q=groceries")
+        assert resp.status_code == 401

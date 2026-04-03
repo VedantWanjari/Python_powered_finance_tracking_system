@@ -9,9 +9,13 @@ Roles (least → most privileged):
   admin    – full access including user management
 """
 
-import datetime                             # for default timestamps
+import datetime                             # for default timestamps and UTC sentinel
 import bcrypt                               # password hashing (salted)
 from app import db                          # shared SQLAlchemy instance
+
+# Timezone-aware UTC now — used as column defaults to avoid the deprecated
+# datetime.utcnow() function (deprecated in Python 3.12).
+_utcnow = lambda: datetime.datetime.now(datetime.UTC).replace(tzinfo=None)  # noqa: E731
 
 
 class User(db.Model):
@@ -38,10 +42,10 @@ class User(db.Model):
 
     # ── Timestamps ────────────────────────────────────────────────────────
     created_at = db.Column(db.DateTime, nullable=False,
-                           default=datetime.datetime.utcnow)
+                           default=_utcnow)
     updated_at = db.Column(db.DateTime, nullable=False,
-                           default=datetime.datetime.utcnow,
-                           onupdate=datetime.datetime.utcnow)
+                           default=_utcnow,
+                           onupdate=_utcnow)
 
     # ── Relationships ─────────────────────────────────────────────────────
     # lazy="dynamic" returns a query object so callers can apply filters

@@ -10,6 +10,8 @@ Users with admin role can create custom categories.
 import datetime
 from app import db
 
+_utcnow = lambda: datetime.datetime.now(datetime.UTC).replace(tzinfo=None)  # noqa: E731
+
 
 class Category(db.Model):
     """Groups transactions for reporting and analytics."""
@@ -38,7 +40,7 @@ class Category(db.Model):
     is_default = db.Column(db.Boolean, nullable=False, default=False)
 
     created_at = db.Column(db.DateTime, nullable=False,
-                           default=datetime.datetime.utcnow)
+                           default=_utcnow)
 
     # ── Relationship back to transactions ─────────────────────────────────
     transactions = db.relationship("Transaction", backref="category_ref",

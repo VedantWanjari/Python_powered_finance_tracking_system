@@ -22,7 +22,7 @@ from typing import Any, Optional
 
 def _now_iso() -> str:
     """Return the current UTC time as an ISO-8601 string."""
-    return datetime.datetime.utcnow().isoformat() + "Z"
+    return datetime.datetime.now(datetime.UTC).replace(tzinfo=None).isoformat() + "Z"
 
 
 def success_response(

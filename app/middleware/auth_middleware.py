@@ -15,6 +15,7 @@ Flask's `g` (request-context global) so route handlers can access
 import functools
 import logging
 from flask import session, g, request, abort
+from app import db
 from app.models.user import User
 
 logger = logging.getLogger(__name__)
@@ -44,7 +45,7 @@ def login_required(fn):
             abort(401)   # triggers handle_401 error handler
 
         # Load from DB every request to catch deactivated accounts immediately
-        user = User.query.get(user_id)
+        user = db.session.get(User, user_id)
 
         if user is None or not user.is_active:
             # User deleted / deactivated after login → clear stale session

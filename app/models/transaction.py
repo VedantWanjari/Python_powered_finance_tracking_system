@@ -16,6 +16,8 @@ import json
 from typing import List
 from app import db
 
+_utcnow = lambda: datetime.datetime.now(datetime.UTC).replace(tzinfo=None)  # noqa: E731
+
 
 class Transaction(db.Model):
     """A single financial event (income or expense)."""
@@ -62,10 +64,10 @@ class Transaction(db.Model):
 
     # ── Timestamps ────────────────────────────────────────────────────────
     created_at = db.Column(db.DateTime, nullable=False,
-                           default=datetime.datetime.utcnow)
+                           default=_utcnow)
     updated_at = db.Column(db.DateTime, nullable=False,
-                           default=datetime.datetime.utcnow,
-                           onupdate=datetime.datetime.utcnow)
+                           default=_utcnow,
+                           onupdate=_utcnow)
 
     # ── Composite indexes for common filter combinations ──────────────────
     # Speeds up "show all expenses in March 2024" type queries

@@ -74,7 +74,7 @@ class UserUpdateSchema(Schema):
             raise ValidationError(
                 "Username may only contain letters, digits, and underscores."
             )
-        return value.lower() if value else value
+        return value   # preserve original case (consistent with registration)
 
 
 class AdminUserUpdateSchema(Schema):

@@ -158,7 +158,7 @@ def report():
         category_data  = AnalyticsService.get_category_breakdown(g.current_user.id)
 
         report_data = {
-            "generated_at": datetime.datetime.utcnow().isoformat() + "Z",
+            "generated_at": datetime.datetime.now(datetime.UTC).replace(tzinfo=None).isoformat() + "Z",
             "summary":      dashboard_data,
             "trends":       trend_data,
             "categories":   category_data,

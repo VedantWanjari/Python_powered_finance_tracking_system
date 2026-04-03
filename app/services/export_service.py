@@ -57,7 +57,7 @@ class ExportService:
             writer.writerow(txn)
 
         # ── Build response ────────────────────────────────────────────────
-        filename = f"transactions_{datetime.datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.csv"
+        filename = f"transactions_{datetime.datetime.now(datetime.UTC).strftime('%Y%m%d_%H%M%S')}.csv"
         return Response(
             output.getvalue(),
             mimetype="text/csv",
@@ -80,12 +80,12 @@ class ExportService:
         )
 
         payload = {
-            "exported_at":       datetime.datetime.utcnow().isoformat() + "Z",
+            "exported_at":       datetime.datetime.now(datetime.UTC).replace(tzinfo=None).isoformat() + "Z",
             "total":             total,
             "transactions":      transactions,
         }
 
-        filename = f"transactions_{datetime.datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.json"
+        filename = f"transactions_{datetime.datetime.now(datetime.UTC).strftime('%Y%m%d_%H%M%S')}.json"
         return Response(
             json.dumps(payload, indent=2, default=str),
             mimetype="application/json",

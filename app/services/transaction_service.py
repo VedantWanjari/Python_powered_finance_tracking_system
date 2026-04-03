@@ -10,9 +10,9 @@ from typing import Optional, List, Tuple
 
 from app import db
 from app.models.transaction import Transaction
-from app.models.audit_log import AuditLog
 from app.services.exceptions import ResourceNotFound, Forbidden
 from app.cache.analytics_cache import analytics_cache
+from app.utils.audit import write_audit_log
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +54,7 @@ class TransactionService:
         # Invalidate cached analytics for this user – data has changed
         analytics_cache.invalidate_user(user_id)
 
-        _write_audit(user_id, "CREATE_TRANSACTION", "Transaction", txn.id, {}, txn.to_dict())
+        write_audit_log(user_id, "CREATE_TRANSACTION", "Transaction", txn.id, {}, txn.to_dict())
         logger.info("Transaction %s created by user %s", txn.id, user_id)
         return txn
 
@@ -179,12 +179,12 @@ class TransactionService:
         if data.get("tags") is not None:
             txn.tags = data["tags"]   # goes through the JSON-encoding setter
 
-        txn.updated_at = datetime.datetime.utcnow()
+        txn.updated_at = datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
         db.session.commit()
 
         analytics_cache.invalidate_user(user_id)  # cache is now stale
-        _write_audit(user_id, "UPDATE_TRANSACTION", "Transaction",
-                     transaction_id, old_data, txn.to_dict())
+        write_audit_log(user_id, "UPDATE_TRANSACTION", "Transaction",
+                        transaction_id, old_data, txn.to_dict())
         return txn
 
     # ── Delete ────────────────────────────────────────────────────────────
@@ -207,8 +207,8 @@ class TransactionService:
         db.session.commit()
 
         analytics_cache.invalidate_user(user_id)
-        _write_audit(user_id, "DELETE_TRANSACTION", "Transaction",
-                     transaction_id, old_data, {})
+        write_audit_log(user_id, "DELETE_TRANSACTION", "Transaction",
+                        transaction_id, old_data, {})
         logger.info("Transaction %s deleted by user %s", transaction_id, user_id)
 
     # ── Bulk create ───────────────────────────────────────────────────────
@@ -245,21 +245,14 @@ class TransactionService:
         db.session.commit()
         analytics_cache.invalidate_user(user_id)
 
+        # Write one audit entry per transaction (mirrors single-create behaviour)
+        for txn in created:
+            write_audit_log(user_id, "BULK_CREATE_TRANSACTION", "Transaction",
+                            txn.id, {}, txn.to_dict())
+
         logger.info("Bulk created %d transactions for user %s", len(created), user_id)
         return created
 
 
 # ── Private helpers ───────────────────────────────────────────────────────────
-
-def _write_audit(user_id, action, resource_type, resource_id, old, new):
-    try:
-        log = AuditLog(
-            user_id=user_id, action=action,
-            resource_type=resource_type, resource_id=str(resource_id),
-        )
-        log.old_values = old
-        log.new_values = new
-        db.session.add(log)
-        db.session.commit()
-    except Exception:   # noqa: BLE001
-        logger.exception("Failed to write audit log for %s", action)
+# Note: _write_audit has been consolidated into app.utils.audit.write_audit_log.

@@ -29,7 +29,7 @@ def _make_error(message: str, status_code: int, errors=None) -> tuple:
         "message":   message,
         "data":      None,
         "error_id":  error_id,
-        "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+        "timestamp": datetime.datetime.now(datetime.UTC).replace(tzinfo=None).isoformat() + "Z",
     }
     if errors:
         body["errors"] = errors

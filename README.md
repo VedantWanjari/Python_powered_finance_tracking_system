@@ -2,6 +2,28 @@
 
 A production-grade REST API backend for personal finance tracking, built with **Flask + MySQL + SQLAlchemy**.
 
+This project was built as a submission for the **Python Developer Intern** assignment. It satisfies every core requirement of the spec — financial records CRUD, analytics/summaries, role-based access (viewer / analyst / admin), input validation, error handling, and a full test suite — plus several optional enhancements (pagination, search, CSV/JSON export, audit logging, in-memory analytics cache).
+
+---
+
+## 🔖 Assumptions Made
+
+The assignment left several design decisions open. Here is what was assumed and why:
+
+| Decision | Assumption & Reasoning |
+|----------|------------------------|
+| **Auth mechanism** | Session cookies (Flask signed cookies) over JWT. Simpler to implement correctly for a single-server app; sessions can be invalidated instantly without a token blacklist. |
+| **Database for production** | MySQL 8.0. The schema uses only standard SQL so it also works with PostgreSQL without changes. |
+| **Database for tests** | SQLite in-memory, so the test suite runs with zero external dependencies (`pytest tests/ -v`). |
+| **Amount precision** | `DECIMAL(10, 2)` — up to 99 999 999.99, which comfortably covers personal finance amounts. |
+| **Tags storage** | JSON string in a `Text` column (not a native JSON column) for portability between MySQL and SQLite. |
+| **Role model** | Three-level hierarchy (viewer < analyst < admin) that inherits upward. Admin gets everything analyst gets; analyst gets everything viewer gets. |
+| **Soft-delete for users** | Deactivating a user sets `is_active = False` rather than deleting the row, so their transaction history and audit trail remain intact. |
+| **Caching** | In-memory `threading.Lock`-protected dict with TTL instead of Redis, to avoid an extra infrastructure dependency. The interface is Redis-compatible for a future upgrade. |
+| **Audit logging** | Every create / update / delete on transactions and users writes an append-only row to `audit_logs`. Audit write failures never break the main operation. |
+| **Pagination cap** | `MAX_PAGE_SIZE = 100` prevents accidentally fetching the entire database in one request. |
+| **`budget_month` field** | Stored as `"YYYY-MM"` string rather than a date range to allow transactions to be explicitly tagged to a budget period that may differ from their actual date. |
+
 ---
 
 ## 🏗️ Tech Stack
