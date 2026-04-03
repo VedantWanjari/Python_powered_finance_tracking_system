@@ -128,5 +128,6 @@ def seed_data():
 # ── Dev server entry point ────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    # Run in debug mode when executed directly (not via `flask run`)
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    # Respect the debug flag set by the active config (True in development,
+    # False in production).  Never hard-code debug=True here.
+    app.run(debug=app.debug, host="0.0.0.0", port=5000)
