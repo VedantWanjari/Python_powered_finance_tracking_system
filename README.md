@@ -6,7 +6,7 @@ This project was built as a submission for the **Python Developer Intern** assig
 
 ---
 
-## 🔖 Assumptions Made
+##  Assumptions Made
 
 The assignment left several design decisions open. Here is what was assumed and why:
 
@@ -26,7 +26,7 @@ The assignment left several design decisions open. Here is what was assumed and 
 
 ---
 
-## 🏗️ Tech Stack
+##  Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
@@ -40,7 +40,7 @@ The assignment left several design decisions open. Here is what was assumed and 
 
 ---
 
-## ⚡ Quick Start
+##  Quick Start
 
 ### 1 — Clone and create a virtual environment
 ```bash
@@ -73,7 +73,7 @@ python setup_db.py
 This creates all tables, seeds 10 default categories, and creates an admin account:
 - **username**: `admin`  **password**: `Admin@1234`
 
-> ⚠️ Change the admin password after your first login!
+>  Change the admin password after your first login!
 
 ### 6 — Start the server
 ```bash
@@ -85,7 +85,7 @@ Server runs at **http://localhost:5000**
 
 ---
 
-## 🔑 First API Call
+##  First API Call
 
 ```bash
 # Login (saves session cookie to cookies.txt)
@@ -106,7 +106,7 @@ curl -b cookies.txt -X POST http://localhost:5000/api/transactions/ \
 
 ---
 
-## 🧪 Running Tests
+##  Running Tests
 
 ```bash
 # All tests
@@ -123,7 +123,7 @@ Tests use **SQLite in-memory** – no MySQL required.
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```text
 │   ├── __init__.py          # App factory (create_app)
@@ -146,7 +146,7 @@ Tests use **SQLite in-memory** – no MySQL required.
 
 ---
 
-## 🔐 User Roles
+##  User Roles
 
 | Role | Permissions |
 |------|------------|
@@ -156,7 +156,7 @@ Tests use **SQLite in-memory** – no MySQL required.
 
 ---
 
-## 📡 API Overview
+##  API Overview
 
 | Method | Path | Description | Role |
 |--------|------|-------------|------|
@@ -190,14 +190,14 @@ See `api_documentation.md` for full request/response examples.
 
 ---
 
-## 🖥️ API Reference
+##  API Reference
 
 > Make sure the server is running (`python run.py`) before executing these commands.  
 > All requests that require authentication use a session cookie stored in `cookies.txt`.
 
 ---
 
-### 🔐 Authentication
+###  Authentication
 
 **Register**
 ```bash
@@ -232,7 +232,7 @@ curl -b cookies.txt -X POST http://localhost:5000/api/auth/logout
 
 ---
 
-### 💸 Transactions
+###  Transactions
 
 **Create a record**
 ```bash
@@ -274,7 +274,7 @@ curl -b cookies.txt -X DELETE http://localhost:5000/api/transactions/42
 
 ---
 
-### 🔍 Filter Records
+###  Filter Records
 
 **By date range**
 ```bash
@@ -330,7 +330,7 @@ curl -b cookies.txt "http://localhost:5000/api/transactions/?date_from=2024-01-0
 
 ---
 
-### 📤 Export & Bulk
+###  Export & Bulk
 
 **Export as CSV**
 ```bash
@@ -358,7 +358,7 @@ curl -b cookies.txt -X POST http://localhost:5000/api/transactions/bulk \
 
 ---
 
-### 📊 Analytics & Reports
+###  Analytics & Reports
 
 **Dashboard summary**
 ```bash
@@ -392,7 +392,7 @@ curl -b cookies.txt "http://localhost:5000/api/analytics/report?months=3"
 
 ---
 
-### 👥 User Management *(admin only)*
+###  User Management *(admin only)*
 
 **List all users**
 ```bash
@@ -424,7 +424,7 @@ curl -b cookies.txt "http://localhost:5000/api/users/5/audit-log?page=1&per_page
 
 ---
 
-### 🛠️ One-Time CLI Setup
+###  One-Time CLI Setup
 
 ```bash
 # Initialize database tables

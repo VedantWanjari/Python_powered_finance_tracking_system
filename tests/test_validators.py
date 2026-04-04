@@ -1,12 +1,9 @@
-"""tests/test_validators.py – unit tests for Marshmallow schemas."""
-
 import datetime
 import pytest
 from marshmallow import ValidationError
 
 from app.validators.transaction_validator import TransactionCreateSchema
 from app.validators.user_validator import UserRegistrationSchema
-
 
 class TestTransactionCreateSchema:
     schema = TransactionCreateSchema()
@@ -43,7 +40,7 @@ class TestTransactionCreateSchema:
         with pytest.raises(ValidationError) as exc_info:
             self.schema.load({
                 "amount": "50",
-                "transaction_type": "transfer",   # invalid
+                "transaction_type": "transfer",
                 "date": datetime.date.today().isoformat(),
                 "description": "Transfer",
             })
@@ -65,7 +62,7 @@ class TestTransactionCreateSchema:
                 "transaction_type": "expense",
                 "date": datetime.date.today().isoformat(),
                 "description": "Tagged",
-                "tags": [123, 456],   # integers, not strings
+                "tags": [123, 456],
             })
 
     def test_transaction_validator_optional_fields_have_defaults(self):
@@ -86,9 +83,7 @@ class TestTransactionCreateSchema:
                 "date": datetime.date.today().isoformat(),
                 "description": "Recurring no freq",
                 "is_recurring": True,
-                # missing recurring_frequency
             })
-
 
 class TestUserRegistrationSchema:
     schema = UserRegistrationSchema()
@@ -138,7 +133,7 @@ class TestUserRegistrationSchema:
     def test_user_validator_username_too_short(self):
         with pytest.raises(ValidationError) as exc_info:
             self.schema.load({
-                "username": "ab",   # less than 3 chars
+                "username": "ab",
                 "email": "u5@example.com",
                 "password": "Valid@123",
             })
@@ -147,7 +142,7 @@ class TestUserRegistrationSchema:
     def test_user_validator_username_invalid_chars(self):
         with pytest.raises(ValidationError) as exc_info:
             self.schema.load({
-                "username": "bad user!",   # spaces and !
+                "username": "bad user!",
                 "email": "u6@example.com",
                 "password": "Valid@123",
             })

@@ -1,8 +1,5 @@
-"""tests/test_auth.py – authentication endpoint tests."""
-
 import pytest
 from tests.conftest import login
-
 
 class TestRegister:
     def test_register_success(self, client):
@@ -33,7 +30,6 @@ class TestRegister:
         assert resp.status_code == 400
         assert "errors" in resp.get_json()
 
-
 class TestLogin:
     def test_login_success(self, client, sample_user):
         resp = login(client, "testuser", "Test@1234")
@@ -58,16 +54,13 @@ class TestLogin:
         resp = login(client, "nobody", "Test@1234")
         assert resp.status_code == 400
 
-
 class TestLogout:
     def test_logout(self, client, sample_user):
         login(client, "testuser", "Test@1234")
         resp = client.post("/api/auth/logout")
         assert resp.status_code == 200
-        # After logout, /me should return 401
         resp2 = client.get("/api/auth/me")
         assert resp2.status_code == 401
-
 
 class TestGetMe:
     def test_get_me_authenticated(self, client, sample_user):

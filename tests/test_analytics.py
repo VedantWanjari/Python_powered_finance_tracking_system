@@ -1,9 +1,6 @@
-"""tests/test_analytics.py – analytics endpoint tests."""
-
 import datetime
 import pytest
 from tests.conftest import login
-
 
 class TestDashboard:
     def test_dashboard_returns_metrics(self, client, sample_user, sample_transactions):
@@ -25,7 +22,6 @@ class TestDashboard:
         resp = client.get("/api/analytics/dashboard")
         assert resp.status_code == 401
 
-
 class TestCategoryBreakdown:
     def test_category_breakdown_returns_percentages(self, client, sample_user, sample_transactions):
         login(client, "testuser", "Test@1234")
@@ -39,11 +35,9 @@ class TestCategoryBreakdown:
     def test_category_breakdown_percentages_sum_to_100(self, client, sample_user, sample_transactions):
         login(client, "testuser", "Test@1234")
         items = client.get("/api/analytics/categories").get_json()["data"]
-        if items:   # only assert if there are expenses
+        if items:
             total_pct = sum(i["percentage"] for i in items)
-            # Allow small floating-point rounding error
             assert abs(total_pct - 100.0) < 1.0
-
 
 class TestMonthlySummary:
     def test_monthly_summary_correct_totals(self, client, sample_user, sample_transactions):
@@ -59,7 +53,6 @@ class TestMonthlySummary:
         login(client, "testuser", "Test@1234")
         resp = client.get("/api/analytics/monthly/2024/13")
         assert resp.status_code == 400
-
 
 class TestTrends:
     def test_trends_returns_monthly_data(self, client, sample_analyst):
@@ -78,12 +71,9 @@ class TestTrends:
         resp = client.get("/api/analytics/trends")
         assert resp.status_code == 403
 
-
 class TestAnalyticsCache:
     def test_analytics_cache_works(self, client, sample_user, sample_transactions):
-        """Two identical requests; second should be served from cache (same data)."""
         login(client, "testuser", "Test@1234")
         resp1 = client.get("/api/analytics/dashboard").get_json()
         resp2 = client.get("/api/analytics/dashboard").get_json()
-        # Both should return the same balance
         assert resp1["data"]["net_balance"] == resp2["data"]["net_balance"]

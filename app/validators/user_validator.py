@@ -1,42 +1,30 @@
-"""
-app/validators/user_validator.py
-─────────────────────────────────
-Marshmallow schemas for user-related input validation.
-"""
-
 import re
 from marshmallow import Schema, fields, validates, ValidationError, validate
 
-# Password rules: ≥8 chars, ≥1 uppercase, ≥1 digit, ≥1 special char
 PASSWORD_MIN_LENGTH = 8
 SPECIAL_CHARS = set("!@#$%^&*()_+-=[]{}|;':\",./<>?")
 VALID_ROLES = {"viewer", "analyst", "admin"}
 
-
 class UserRegistrationSchema(Schema):
-    """Validates POST /api/auth/register body."""
 
     username = fields.String(
         required=True,
         validate=validate.Length(min=3, max=64),
     )
     email = fields.Email(required=True)
-    password = fields.String(required=True, load_only=True)  # never serialised
-    # Default role for new registrations; can be overridden by admin
+    password = fields.String(required=True, load_only=True)
     role = fields.String(load_default="viewer")
 
     @validates("username")
     def validate_username(self, value: str) -> str:
-        """Usernames must be alphanumeric + underscores only."""
         if not re.match(r"^[a-zA-Z0-9_]+$", value):
             raise ValidationError(
                 "Username may only contain letters, digits, and underscores."
             )
-        return value   # preserve original case
+        return value
 
     @validates("password")
     def validate_password(self, value: str) -> str:
-        """Enforce password strength rules."""
         errors = []
         if len(value) < PASSWORD_MIN_LENGTH:
             errors.append(f"Password must be at least {PASSWORD_MIN_LENGTH} characters.")
@@ -56,15 +44,11 @@ class UserRegistrationSchema(Schema):
             raise ValidationError(f"Role must be one of: {', '.join(sorted(VALID_ROLES))}.")
         return value
 
-
 class UserLoginSchema(Schema):
-    """Validates POST /api/auth/login body."""
     username = fields.String(required=True)
     password = fields.String(required=True, load_only=True)
 
-
 class UserUpdateSchema(Schema):
-    """Validates PUT /api/auth/me (profile update)."""
     email    = fields.Email(load_default=None)
     username = fields.String(load_default=None, validate=validate.Length(min=3, max=64))
 
@@ -74,11 +58,9 @@ class UserUpdateSchema(Schema):
             raise ValidationError(
                 "Username may only contain letters, digits, and underscores."
             )
-        return value   # preserve original case (consistent with registration)
-
+        return value
 
 class AdminUserUpdateSchema(Schema):
-    """Validates PUT /api/users/<id> (admin changes role/status)."""
     role      = fields.String(load_default=None)
     is_active = fields.Boolean(load_default=None)
 
