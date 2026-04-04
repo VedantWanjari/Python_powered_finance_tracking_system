@@ -125,7 +125,9 @@ Tests use **SQLite in-memory** – no MySQL required.
 
 ##  Project Structure
 
-```text
+```
+.
+├── app/
 │   ├── __init__.py          # App factory (create_app)
 │   ├── config.py            # Dev / Test / Prod config
 │   ├── models/              # SQLAlchemy ORM models
