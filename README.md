@@ -248,7 +248,7 @@ curl -b cookies.txt -X POST http://localhost:5000/api/transactions/ \
     "description": "Grocery shopping",
     "category_id": 1,
     "notes": "Weekly groceries",
-    "tags": "food,weekly"
+    "tags": ["food", "weekly"]
   }'
 ```
 > `transaction_type` must be `"income"` or `"expense"`
