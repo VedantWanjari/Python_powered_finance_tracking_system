@@ -88,15 +88,14 @@ Server runs at **http://localhost:5000**
 ## 🔑 First API Call
 
 ```bash
-# Login
-curl -X POST http://localhost:5000/api/auth/login \
+# Login (saves session cookie to cookies.txt)
+curl -c cookies.txt -b cookies.txt -X POST http://localhost:5000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","password":"Admin@1234"}'
 
-# Create a transaction (use the session cookie returned above)
-curl -X POST http://localhost:5000/api/transactions/ \
+# Create a transaction (uses the session cookie saved above)
+curl -b cookies.txt -X POST http://localhost:5000/api/transactions/ \
   -H "Content-Type: application/json" \
-  -b cookies.txt -c cookies.txt \
   -d '{
     "amount": 5000,
     "transaction_type": "income",
@@ -126,9 +125,7 @@ Tests use **SQLite in-memory** – no MySQL required.
 
 ## 📁 Project Structure
 
-```
-.
-├── app/
+```text
 │   ├── __init__.py          # App factory (create_app)
 │   ├── config.py            # Dev / Test / Prod config
 │   ├── models/              # SQLAlchemy ORM models
