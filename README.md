@@ -3,6 +3,7 @@
 A production-grade REST API backend for personal finance tracking, built with **Flask + MySQL + SQLAlchemy**.
 
 > **Live API:** `https://finance-tracker-api-22r9.onrender.com`
+> **Swagger UI:** `https://finance-tracker-api-22r9.onrender.com/apidocs`
 
 This project was built as a submission for the **Python Developer Intern** assignment. It satisfies every core requirement of the spec — financial records CRUD, analytics/summaries, role-based access (viewer / analyst / admin), input validation, error handling, and a full test suite — plus several optional enhancements (pagination, search, CSV/JSON export, audit logging, in-memory analytics cache).
 
@@ -109,18 +110,18 @@ Server runs at **http://localhost:5000**
    | `DATABASE_URL` | *(Internal Database URL from step 1)* |
 4. Click **Create Web Service**. Render deploys automatically on every `git push`.
 
-> The API is deployed at **`https://finance-tracker-api-22r9.onrender.com`**. Replace `http://localhost:5000` with that URL in the curl examples below (and in `api_documentation.md`) when calling the live deployment.
+> The API is deployed at **`https://finance-tracker-api-22r9.onrender.com`**.
 
 ---
 
 ##  First API Call
 
 ```bash
-curl -c cookies.txt -b cookies.txt -X POST http://localhost:5000/api/auth/login \
+curl -c cookies.txt -b cookies.txt -X POST https://finance-tracker-api-22r9.onrender.com/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","password":"Admin@1234"}'
 
-curl -b cookies.txt -X POST http://localhost:5000/api/transactions/ \
+curl -b cookies.txt -X POST https://finance-tracker-api-22r9.onrender.com/api/transactions/ \
   -H "Content-Type: application/json" \
   -d '{
     "amount": 5000,
@@ -224,33 +225,33 @@ See `api_documentation.md` for full request/response examples.
 
 **Register**
 ```bash
-curl -c cookies.txt -X POST http://localhost:5000/api/auth/register \
+curl -c cookies.txt -X POST https://finance-tracker-api-22r9.onrender.com/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{"username":"alice","email":"alice@example.com","password":"Pass@1234"}'
 ```
 
 **Login**
 ```bash
-curl -c cookies.txt -b cookies.txt -X POST http://localhost:5000/api/auth/login \
+curl -c cookies.txt -b cookies.txt -X POST https://finance-tracker-api-22r9.onrender.com/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"alice","password":"Pass@1234"}'
 ```
 
 **View your profile**
 ```bash
-curl -b cookies.txt http://localhost:5000/api/auth/me
+curl -b cookies.txt https://finance-tracker-api-22r9.onrender.com/api/auth/me
 ```
 
 **Update your profile**
 ```bash
-curl -b cookies.txt -X PUT http://localhost:5000/api/auth/me \
+curl -b cookies.txt -X PUT https://finance-tracker-api-22r9.onrender.com/api/auth/me \
   -H "Content-Type: application/json" \
   -d '{"email":"newemail@example.com","username":"alice_new"}'
 ```
 
 **Logout**
 ```bash
-curl -b cookies.txt -X POST http://localhost:5000/api/auth/logout
+curl -b cookies.txt -X POST https://finance-tracker-api-22r9.onrender.com/api/auth/logout
 ```
 
 ---
@@ -259,7 +260,7 @@ curl -b cookies.txt -X POST http://localhost:5000/api/auth/logout
 
 **Create a record**
 ```bash
-curl -b cookies.txt -X POST http://localhost:5000/api/transactions/ \
+curl -b cookies.txt -X POST https://finance-tracker-api-22r9.onrender.com/api/transactions/ \
   -H "Content-Type: application/json" \
   -d '{
     "amount": 500,
@@ -275,24 +276,24 @@ curl -b cookies.txt -X POST http://localhost:5000/api/transactions/ \
 
 **View all records (paginated)**
 ```bash
-curl -b cookies.txt "http://localhost:5000/api/transactions/?page=1&per_page=20"
+curl -b cookies.txt "https://finance-tracker-api-22r9.onrender.com/api/transactions/?page=1&per_page=20"
 ```
 
 **View a single record by ID**
 ```bash
-curl -b cookies.txt http://localhost:5000/api/transactions/42
+curl -b cookies.txt https://finance-tracker-api-22r9.onrender.com/api/transactions/42
 ```
 
 **Update a record**
 ```bash
-curl -b cookies.txt -X PUT http://localhost:5000/api/transactions/42 \
+curl -b cookies.txt -X PUT https://finance-tracker-api-22r9.onrender.com/api/transactions/42 \
   -H "Content-Type: application/json" \
   -d '{"amount": 650, "description": "Updated grocery run", "category_id": 2}'
 ```
 
 **Delete a record**
 ```bash
-curl -b cookies.txt -X DELETE http://localhost:5000/api/transactions/42
+curl -b cookies.txt -X DELETE https://finance-tracker-api-22r9.onrender.com/api/transactions/42
 ```
 
 ---
@@ -301,37 +302,37 @@ curl -b cookies.txt -X DELETE http://localhost:5000/api/transactions/42
 
 **By date range**
 ```bash
-curl -b cookies.txt "http://localhost:5000/api/transactions/?date_from=2024-01-01&date_to=2024-03-31"
+curl -b cookies.txt "https://finance-tracker-api-22r9.onrender.com/api/transactions/?date_from=2024-01-01&date_to=2024-03-31"
 ```
 
 **By category**
 ```bash
-curl -b cookies.txt "http://localhost:5000/api/transactions/?category_id=1"
+curl -b cookies.txt "https://finance-tracker-api-22r9.onrender.com/api/transactions/?category_id=1"
 ```
 
 **By type**
 ```bash
-curl -b cookies.txt "http://localhost:5000/api/transactions/?transaction_type=expense"
+curl -b cookies.txt "https://finance-tracker-api-22r9.onrender.com/api/transactions/?transaction_type=expense"
 ```
 
 **By amount range**
 ```bash
-curl -b cookies.txt "http://localhost:5000/api/transactions/?amount_min=100&amount_max=1000"
+curl -b cookies.txt "https://finance-tracker-api-22r9.onrender.com/api/transactions/?amount_min=100&amount_max=1000"
 ```
 
 **By tag**
 ```bash
-curl -b cookies.txt "http://localhost:5000/api/transactions/?tags=food"
+curl -b cookies.txt "https://finance-tracker-api-22r9.onrender.com/api/transactions/?tags=food"
 ```
 
 **Search by keyword**
 ```bash
-curl -b cookies.txt "http://localhost:5000/api/transactions/search?q=grocery"
+curl -b cookies.txt "https://finance-tracker-api-22r9.onrender.com/api/transactions/search?q=grocery"
 ```
 
 **Combine multiple filters**
 ```bash
-curl -b cookies.txt "http://localhost:5000/api/transactions/?date_from=2024-01-01&date_to=2024-12-31&transaction_type=expense&category_id=1&sort_by=amount&sort_order=desc&page=1&per_page=10"
+curl -b cookies.txt "https://finance-tracker-api-22r9.onrender.com/api/transactions/?date_from=2024-01-01&date_to=2024-12-31&transaction_type=expense&category_id=1&sort_by=amount&sort_order=desc&page=1&per_page=10"
 ```
 
 **All filter parameters**
@@ -357,19 +358,19 @@ curl -b cookies.txt "http://localhost:5000/api/transactions/?date_from=2024-01-0
 
 **Export as CSV**
 ```bash
-curl -b cookies.txt "http://localhost:5000/api/transactions/export/csv?date_from=2024-01-01&date_to=2024-12-31&transaction_type=expense" \
+curl -b cookies.txt "https://finance-tracker-api-22r9.onrender.com/api/transactions/export/csv?date_from=2024-01-01&date_to=2024-12-31&transaction_type=expense" \
   -o transactions.csv
 ```
 
 **Export as JSON**
 ```bash
-curl -b cookies.txt "http://localhost:5000/api/transactions/export/json?date_from=2024-01-01&date_to=2024-12-31" \
+curl -b cookies.txt "https://finance-tracker-api-22r9.onrender.com/api/transactions/export/json?date_from=2024-01-01&date_to=2024-12-31" \
   -o transactions.json
 ```
 
 **Bulk create transactions** *(analyst / admin only)*
 ```bash
-curl -b cookies.txt -X POST http://localhost:5000/api/transactions/bulk \
+curl -b cookies.txt -X POST https://finance-tracker-api-22r9.onrender.com/api/transactions/bulk \
   -H "Content-Type: application/json" \
   -d '{
     "transactions": [
@@ -385,32 +386,32 @@ curl -b cookies.txt -X POST http://localhost:5000/api/transactions/bulk \
 
 **Dashboard summary**
 ```bash
-curl -b cookies.txt http://localhost:5000/api/analytics/dashboard
+curl -b cookies.txt https://finance-tracker-api-22r9.onrender.com/api/analytics/dashboard
 ```
 
 **Category breakdown**
 ```bash
-curl -b cookies.txt "http://localhost:5000/api/analytics/categories?start_date=2024-01-01&end_date=2024-03-31"
+curl -b cookies.txt "https://finance-tracker-api-22r9.onrender.com/api/analytics/categories?start_date=2024-01-01&end_date=2024-03-31"
 ```
 
 **Monthly breakdown**
 ```bash
-curl -b cookies.txt http://localhost:5000/api/analytics/monthly/2024/3
+curl -b cookies.txt https://finance-tracker-api-22r9.onrender.com/api/analytics/monthly/2024/3
 ```
 
 **Budget status**
 ```bash
-curl -b cookies.txt "http://localhost:5000/api/analytics/budget?month=2024-03"
+curl -b cookies.txt "https://finance-tracker-api-22r9.onrender.com/api/analytics/budget?month=2024-03"
 ```
 
 **Trend analysis — last N months** *(analyst / admin only)*
 ```bash
-curl -b cookies.txt "http://localhost:5000/api/analytics/trends?months=6"
+curl -b cookies.txt "https://finance-tracker-api-22r9.onrender.com/api/analytics/trends?months=6"
 ```
 
 **Full report** *(analyst / admin only)*
 ```bash
-curl -b cookies.txt "http://localhost:5000/api/analytics/report?months=3"
+curl -b cookies.txt "https://finance-tracker-api-22r9.onrender.com/api/analytics/report?months=3"
 ```
 
 ---
@@ -419,17 +420,17 @@ curl -b cookies.txt "http://localhost:5000/api/analytics/report?months=3"
 
 **List all users**
 ```bash
-curl -b cookies.txt "http://localhost:5000/api/users/?page=1&per_page=20"
+curl -b cookies.txt "https://finance-tracker-api-22r9.onrender.com/api/users/?page=1&per_page=20"
 ```
 
 **View a specific user**
 ```bash
-curl -b cookies.txt http://localhost:5000/api/users/5
+curl -b cookies.txt https://finance-tracker-api-22r9.onrender.com/api/users/5
 ```
 
 **Update a user's role or status**
 ```bash
-curl -b cookies.txt -X PUT http://localhost:5000/api/users/5 \
+curl -b cookies.txt -X PUT https://finance-tracker-api-22r9.onrender.com/api/users/5 \
   -H "Content-Type: application/json" \
   -d '{"role": "analyst", "is_active": true}'
 ```
@@ -437,12 +438,12 @@ curl -b cookies.txt -X PUT http://localhost:5000/api/users/5 \
 
 **Deactivate a user**
 ```bash
-curl -b cookies.txt -X DELETE http://localhost:5000/api/users/5
+curl -b cookies.txt -X DELETE https://finance-tracker-api-22r9.onrender.com/api/users/5
 ```
 
 **View a user's audit log**
 ```bash
-curl -b cookies.txt "http://localhost:5000/api/users/5/audit-log?page=1&per_page=20"
+curl -b cookies.txt "https://finance-tracker-api-22r9.onrender.com/api/users/5/audit-log?page=1&per_page=20"
 ```
 
 ---
