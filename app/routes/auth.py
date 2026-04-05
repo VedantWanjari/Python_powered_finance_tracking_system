@@ -36,10 +36,10 @@ def register():
           properties:
             username:
               type: string
-              example: vedant
+              example: demo_user
             email:
               type: string
-              example: vedant@example.com
+              example: demo_user@example.com
             password:
               type: string
               example: "Secure@123"
