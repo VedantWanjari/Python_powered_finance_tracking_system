@@ -49,14 +49,16 @@ class TestingConfig(BaseConfig):
 
     WTF_CSRF_ENABLED: bool = False
 
-class ProductionConfig(BaseConfig):
-
-    DEBUG: bool = False
-    TESTING: bool = False
-
-    SESSION_COOKIE_SECURE: bool = True
-
-    SQLALCHEMY_DATABASE_URI: str = (
+def _build_prod_db_uri() -> str:
+    # Render (and most PaaS) inject DATABASE_URL automatically.
+    # SQLAlchemy requires "postgresql+psycopg2://" — fix the legacy "postgres://" prefix.
+    url = os.getenv("DATABASE_URL")
+    if url:
+        if url.startswith("postgres://"):
+            url = url.replace("postgres://", "postgresql+psycopg2://", 1)
+        return url
+    # Fallback: build from individual MySQL env vars (local / custom hosting)
+    return (
         "mysql+pymysql://"
         f"{quote_plus(os.getenv('MYSQL_USER', 'root'))}:"
         f"{quote_plus(os.getenv('MYSQL_PASSWORD', ''))}@"
@@ -64,6 +66,16 @@ class ProductionConfig(BaseConfig):
         f"{os.getenv('MYSQL_PORT', '3306')}/"
         f"{os.getenv('MYSQL_DATABASE', 'finance_tracker')}"
     )
+
+
+class ProductionConfig(BaseConfig):
+
+    DEBUG: bool = False
+    TESTING: bool = False
+
+    SESSION_COOKIE_SECURE: bool = True
+
+    SQLALCHEMY_DATABASE_URI: str = _build_prod_db_uri()
 
 config_by_name: dict = {
     "development": DevelopmentConfig,

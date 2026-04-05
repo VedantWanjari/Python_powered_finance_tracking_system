@@ -1,11 +1,17 @@
 # Core web framework
 Flask==3.0.0
 
+# Production WSGI server (required for Render)
+gunicorn==21.2.0
+
 # ORM and database
 Flask-SQLAlchemy==3.1.1
 Flask-Migrate==4.0.5
 PyMySQL==1.1.1
 cryptography==46.0.5
+
+# PostgreSQL driver (used on Render free tier)
+psycopg2-binary==2.9.9
 
 # Password hashing
 bcrypt==4.1.2

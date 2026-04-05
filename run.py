@@ -1,3 +1,4 @@
+import os
 import click
 from flask.cli import with_appcontext
 from app import create_app, db
@@ -94,4 +95,5 @@ def seed_data():
         click.echo("Users already exist – skipping transaction seed.")
 
 if __name__ == "__main__":
-    app.run(debug=app.debug, host="0.0.0.0", port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=app.debug, host="0.0.0.0", port=port)
