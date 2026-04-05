@@ -1,6 +1,6 @@
 # API Documentation
 
-Base URL: `https://<your-service-name>.onrender.com`
+Base URL: `https://finance-tracker-api-22r9.onrender.com`
 
 > **Local development:** `http://localhost:5000`
 

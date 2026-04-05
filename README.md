@@ -2,6 +2,8 @@
 
 A production-grade REST API backend for personal finance tracking, built with **Flask + MySQL + SQLAlchemy**.
 
+> **Live API:** `https://finance-tracker-api-22r9.onrender.com`
+
 This project was built as a submission for the **Python Developer Intern** assignment. It satisfies every core requirement of the spec — financial records CRUD, analytics/summaries, role-based access (viewer / analyst / admin), input validation, error handling, and a full test suite — plus several optional enhancements (pagination, search, CSV/JSON export, audit logging, in-memory analytics cache).
 
 ---
@@ -90,7 +92,7 @@ Server runs at **http://localhost:5000**
 2. Go to **https://dashboard.render.com** → **New → Blueprint**.
 3. Connect your GitHub repo. Render will detect `render.yaml` and create both the **web service** and the **PostgreSQL database** automatically.
 4. Click **Apply**. The first deploy runs `pip install -r requirements.txt && python setup_db.py` and starts the server with `gunicorn`.
-5. Your API is live at `https://<service-name>.onrender.com`.
+5. Your API is live at `https://finance-tracker-api-22r9.onrender.com`.
 
 ### Option B — Manual setup
 1. **Create a PostgreSQL database** on Render (New → PostgreSQL, free plan). Copy the **Internal Database URL**.
@@ -107,7 +109,7 @@ Server runs at **http://localhost:5000**
    | `DATABASE_URL` | *(Internal Database URL from step 1)* |
 4. Click **Create Web Service**. Render deploys automatically on every `git push`.
 
-> **After you have your Render URL**, replace `http://localhost:5000` with `https://<your-service-name>.onrender.com` in all curl examples in this file and in `api_documentation.md`.
+> The API is deployed at **`https://finance-tracker-api-22r9.onrender.com`**. Replace `http://localhost:5000` with that URL in the curl examples below (and in `api_documentation.md`) when calling the live deployment.
 
 ---
 
