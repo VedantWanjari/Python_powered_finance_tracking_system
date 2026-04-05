@@ -4,12 +4,59 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flasgger import Swagger
 
 from app.config import config_by_name, DEFAULT_CONFIG
 
 db = SQLAlchemy()
 migrate = Migrate()
 limiter = Limiter(key_func=get_remote_address)
+
+SWAGGER_CONFIG = {
+    "title": "Finance Tracker API",
+    "uiversion": 3,
+    "version": "1.0.0",
+    "description": (
+        "A Python-powered personal finance tracking REST API.\n\n"
+        "**Authentication:** Session-based. Call `POST /api/auth/login` first — "
+        "the server sets an HTTP-only cookie that is sent automatically on every "
+        "subsequent request.\n\n"
+        "**Demo credentials (try it now!):**\n"
+        "- Username: `demo`\n"
+        "- Password: `Demo@1234`\n\n"
+        "Use the `/api/auth/login` endpoint below, then explore the rest of the API."
+    ),
+    "termsOfService": "",
+    "contact": {"name": "Vedant Wanjari"},
+    "specs_route": "/apidocs/",
+}
+
+SWAGGER_TEMPLATE = {
+    "swagger": "2.0",
+    "info": {
+        "title": "Finance Tracker API",
+        "description": SWAGGER_CONFIG["description"],
+        "version": "1.0.0",
+    },
+    "basePath": "/",
+    "securityDefinitions": {
+        "cookieAuth": {
+            "type": "apiKey",
+            "in": "header",
+            "name": "Cookie",
+            "description": "Session cookie obtained from POST /api/auth/login",
+        }
+    },
+    "consumes": ["application/json"],
+    "produces": ["application/json"],
+    "tags": [
+        {"name": "Auth", "description": "Authentication and profile management"},
+        {"name": "Transactions", "description": "Create, read, update, delete and export transactions"},
+        {"name": "Analytics", "description": "Dashboard, trends and reporting endpoints"},
+        {"name": "Users", "description": "Admin-only user management"},
+    ],
+}
+
 
 def create_app(config_name: str = DEFAULT_CONFIG) -> Flask:
     app = Flask(__name__)
@@ -19,6 +66,7 @@ def create_app(config_name: str = DEFAULT_CONFIG) -> Flask:
     db.init_app(app)
     migrate.init_app(app, db)
     limiter.init_app(app)
+    Swagger(app, config=SWAGGER_CONFIG, template=SWAGGER_TEMPLATE)
 
     _register_blueprints(app)
 

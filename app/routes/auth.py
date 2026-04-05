@@ -18,6 +18,42 @@ auth_bp = Blueprint("auth", __name__)
 @auth_bp.route("/register", methods=["POST"])
 @validate_schema(UserRegistrationSchema)
 def register():
+    """
+    Register a new user account.
+    ---
+    tags:
+      - Auth
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          required:
+            - username
+            - email
+            - password
+          properties:
+            username:
+              type: string
+              example: vedant
+            email:
+              type: string
+              example: vedant@example.com
+            password:
+              type: string
+              example: "Secure@123"
+              description: "Min 8 chars, 1 uppercase, 1 digit, 1 special character"
+    responses:
+      201:
+        description: Account created successfully
+        schema:
+          $ref: '#/definitions/UserResponse'
+      400:
+        description: Validation error
+      409:
+        description: Username or email already exists
+    """
     try:
         user = UserService.create_user(g.validated_data)
         return success_response(user.to_dict(), "Account created successfully.", 201)
