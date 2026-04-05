@@ -47,7 +47,7 @@ The assignment left several design decisions open. Here is what was assumed and 
 git clone <repo-url>
 cd Python_powered_finance_tracking_system
 python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
+source .venv/bin/activate
 ```
 
 ### 2 — Install dependencies
@@ -58,7 +58,6 @@ pip install -r requirements.txt
 ### 3 — Configure the environment
 ```bash
 cp .env.example .env
-# Edit .env and fill in your MySQL credentials and a secret key
 ```
 
 ### 4 — Create the MySQL database
@@ -73,12 +72,11 @@ python setup_db.py
 This creates all tables, seeds 10 default categories, and creates an admin account:
 - **username**: `admin`  **password**: `Admin@1234`
 
->  Change the admin password after your first login!
+> Change the admin password after your first login.
 
 ### 6 — Start the server
 ```bash
 python run.py
-# or: flask run
 ```
 
 Server runs at **http://localhost:5000**
@@ -116,12 +114,10 @@ Server runs at **http://localhost:5000**
 ##  First API Call
 
 ```bash
-# Login (saves session cookie to cookies.txt)
 curl -c cookies.txt -b cookies.txt -X POST http://localhost:5000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","password":"Admin@1234"}'
 
-# Create a transaction (uses the session cookie saved above)
 curl -b cookies.txt -X POST http://localhost:5000/api/transactions/ \
   -H "Content-Type: application/json" \
   -d '{
@@ -137,13 +133,8 @@ curl -b cookies.txt -X POST http://localhost:5000/api/transactions/ \
 ##  Running Tests
 
 ```bash
-# All tests
 pytest tests/ -v
-
-# With coverage report
 pytest tests/ --cov=app --cov-report=term-missing
-
-# Single test file
 pytest tests/test_auth.py -v
 ```
 
@@ -156,18 +147,18 @@ Tests use **SQLite in-memory** – no MySQL required.
 ```
 .
 ├── app/
-│   ├── __init__.py          # App factory (create_app)
-│   ├── config.py            # Dev / Test / Prod config
-│   ├── models/              # SQLAlchemy ORM models
-│   ├── routes/              # Flask blueprints (API endpoints)
-│   ├── services/            # Business logic layer
-│   ├── validators/          # Marshmallow input validation
-│   ├── middleware/          # Auth, RBAC, error handling, logging
-│   ├── cache/               # In-memory analytics cache
-│   └── utils/               # Helpers: logger, response formatter
-├── tests/                   # pytest test suite
-├── run.py                   # Entry point + CLI commands
-├── setup_db.py              # One-time DB initialisation
+│   ├── __init__.py
+│   ├── config.py
+│   ├── models/
+│   ├── routes/
+│   ├── services/
+│   ├── validators/
+│   ├── middleware/
+│   ├── cache/
+│   └── utils/
+├── tests/
+├── run.py
+├── setup_db.py
 ├── requirements.txt
 ├── .env.example
 ├── ARCHITECTURE.md
@@ -457,16 +448,9 @@ curl -b cookies.txt "http://localhost:5000/api/users/5/audit-log?page=1&per_page
 ###  One-Time CLI Setup
 
 ```bash
-# Initialize database tables
 flask init-db
-
-# Create an admin user interactively
 flask create-admin
-
-# Seed default categories and a demo user with sample transactions
 flask seed-data
-
-# Full setup in one command (tables + categories + admin/Admin@1234)
 python setup_db.py
 ```
 

@@ -50,14 +50,11 @@ class TestingConfig(BaseConfig):
     WTF_CSRF_ENABLED: bool = False
 
 def _build_prod_db_uri() -> str:
-    # Render (and most PaaS) inject DATABASE_URL automatically.
-    # SQLAlchemy requires "postgresql+psycopg2://" — fix the legacy "postgres://" prefix.
     url = os.getenv("DATABASE_URL")
     if url:
         if url.startswith("postgres://"):
             url = url.replace("postgres://", "postgresql+psycopg2://", 1)
         return url
-    # Fallback: build from individual MySQL env vars (local / custom hosting)
     return (
         "mysql+pymysql://"
         f"{quote_plus(os.getenv('MYSQL_USER', 'root'))}:"
