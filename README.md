@@ -4,6 +4,7 @@ A production-grade REST API backend for personal finance tracking, built with **
 
 > **Live API:** `https://finance-tracker-api-22r9.onrender.com`
 > **Swagger UI:** `https://finance-tracker-api-22r9.onrender.com/apidocs`
+> **Demo admin login** — **username**: `admin`  **password**: `Admin@1234`
 
 This project was built as a submission for the **Python Developer Intern** assignment. It satisfies every core requirement of the spec — financial records CRUD, analytics/summaries, role-based access (viewer / analyst / admin), input validation, error handling, and a full test suite — plus several optional enhancements (pagination, search, CSV/JSON export, audit logging, in-memory analytics cache).
 
