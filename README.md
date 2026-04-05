@@ -82,7 +82,7 @@ This creates all tables, seeds 10 default categories, and creates an admin accou
 python run.py
 ```
 
-Server runs at **https://finance-tracker-api-22r9.onrender.com**
+Server runs at **http://localhost:5000**
 
 ---
 
