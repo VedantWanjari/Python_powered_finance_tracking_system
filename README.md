@@ -85,34 +85,6 @@ Server runs at **http://localhost:5000**
 
 ---
 
-##  Deploy to Render (Free Tier)
-
-### Option A — One-click Blueprint (recommended)
-1. Push this repository to GitHub.
-2. Go to **https://dashboard.render.com** → **New → Blueprint**.
-3. Connect your GitHub repo. Render will detect `render.yaml` and create both the **web service** and the **PostgreSQL database** automatically.
-4. Click **Apply**. The first deploy runs `pip install -r requirements.txt && python setup_db.py` and starts the server with `gunicorn`.
-5. Your API is live at `https://finance-tracker-api-22r9.onrender.com`.
-
-### Option B — Manual setup
-1. **Create a PostgreSQL database** on Render (New → PostgreSQL, free plan). Copy the **Internal Database URL**.
-2. **Create a Web Service** (New → Web Service, connect your repo):
-   - **Runtime:** Python
-   - **Build Command:** `pip install -r requirements.txt && python setup_db.py`
-   - **Start Command:** `gunicorn run:app`
-   - **Plan:** Free
-3. Under **Environment Variables** add:
-   | Key | Value |
-   |-----|-------|
-   | `FLASK_ENV` | `production` |
-   | `SECRET_KEY` | *(a long random string)* |
-   | `DATABASE_URL` | *(Internal Database URL from step 1)* |
-4. Click **Create Web Service**. Render deploys automatically on every `git push`.
-
-> The API is deployed at **`https://finance-tracker-api-22r9.onrender.com`**.
-
----
-
 ##  First API Call
 
 ```bash
