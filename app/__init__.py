@@ -37,9 +37,9 @@ SWAGGER_TEMPLATE = {
             "**Authentication:** Session-based. Call `POST /api/auth/login` first — "
             "the server sets an HTTP-only cookie that is sent automatically on every "
             "subsequent request.\n\n"
-            "**Demo credentials:**\n"
-            "- Username: `demo`\n"
-            "- Password: `Demo@1234`\n\n"
+            "**Admin credentials:**\n"
+            "- Username: `admin`\n"
+            "- Password: `Admin@1234`\n\n"
             "Use the `/api/auth/login` endpoint below, then explore the rest of the API."
         ),
         "version": "1.0.0",
