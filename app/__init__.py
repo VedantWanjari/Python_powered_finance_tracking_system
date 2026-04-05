@@ -62,6 +62,20 @@ SWAGGER_TEMPLATE = {
         {"name": "Analytics", "description": "Dashboard, trends and reporting endpoints"},
         {"name": "Users", "description": "Admin-only user management"},
     ],
+    "definitions": {
+        "UserResponse": {
+            "type": "object",
+            "properties": {
+                "id":         {"type": "integer", "example": 1},
+                "username":   {"type": "string",  "example": "vedant"},
+                "email":      {"type": "string",  "example": "vedant@example.com"},
+                "role":       {"type": "string",  "enum": ["viewer", "analyst", "admin"], "example": "viewer"},
+                "is_active":  {"type": "boolean", "example": True},
+                "created_at": {"type": "string",  "format": "date-time", "example": "2024-01-01T00:00:00"},
+                "updated_at": {"type": "string",  "format": "date-time", "example": "2024-01-01T00:00:00"},
+            },
+        },
+    },
 }
 
 
