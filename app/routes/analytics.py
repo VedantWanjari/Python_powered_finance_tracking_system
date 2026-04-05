@@ -15,6 +15,40 @@ analytics_bp = Blueprint("analytics", __name__)
 @analytics_bp.route("/dashboard", methods=["GET"])
 @login_required
 def dashboard():
+    """
+    High-level financial summary (KPIs). Cached for 5 minutes.
+    ---
+    tags:
+      - Analytics
+    security:
+      - cookieAuth: []
+    responses:
+      200:
+        description: Dashboard KPI data
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: success
+            data:
+              type: object
+              properties:
+                total_income:
+                  type: number
+                  example: 5000.00
+                total_expenses:
+                  type: number
+                  example: 1200.00
+                net_balance:
+                  type: number
+                  example: 3800.00
+                transaction_count:
+                  type: integer
+                  example: 15
+      401:
+        description: Not authenticated
+    """
     try:
         data = AnalyticsService.get_dashboard(g.current_user.id)
         return success_response(data, "Dashboard data retrieved.")
@@ -24,6 +58,29 @@ def dashboard():
 @analytics_bp.route("/trends", methods=["GET"])
 @analyst_required
 def trends():
+    """
+    Month-over-month income/expense trends. Requires analyst or admin role.
+    ---
+    tags:
+      - Analytics
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: query
+        name: months
+        type: integer
+        default: 6
+        description: Number of past months to include (1–24)
+    responses:
+      200:
+        description: Trend data per month
+      400:
+        description: Invalid months value
+      401:
+        description: Not authenticated
+      403:
+        description: Analyst or admin role required
+    """
     try:
         months = int(request.args.get("months", 6))
         if months < 1 or months > 24:
@@ -40,6 +97,30 @@ def trends():
 @analytics_bp.route("/categories", methods=["GET"])
 @login_required
 def category_breakdown():
+    """
+    Expense breakdown by category with optional date range filter.
+    ---
+    tags:
+      - Analytics
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: query
+        name: start_date
+        type: string
+        example: "2024-01-01"
+      - in: query
+        name: end_date
+        type: string
+        example: "2024-03-31"
+    responses:
+      200:
+        description: Category breakdown data
+      400:
+        description: Invalid date format
+      401:
+        description: Not authenticated
+    """
     try:
         start_date = (
             datetime.date.fromisoformat(request.args["start_date"])
@@ -63,6 +144,32 @@ def category_breakdown():
 @analytics_bp.route("/monthly/<int:year>/<int:month>", methods=["GET"])
 @login_required
 def monthly_summary(year: int, month: int):
+    """
+    Monthly income/expense summary for a specific year and month.
+    ---
+    tags:
+      - Analytics
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: year
+        type: integer
+        required: true
+        example: 2024
+      - in: path
+        name: month
+        type: integer
+        required: true
+        example: 3
+    responses:
+      200:
+        description: Monthly summary data
+      400:
+        description: Invalid month value
+      401:
+        description: Not authenticated
+    """
     if not (1 <= month <= 12):
         return handle_app_error(ValidationError("month must be between 1 and 12."))
 
@@ -75,6 +182,28 @@ def monthly_summary(year: int, month: int):
 @analytics_bp.route("/budget", methods=["GET"])
 @login_required
 def budget_status():
+    """
+    Budget vs actual spending for a given month.
+    ---
+    tags:
+      - Analytics
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: query
+        name: month
+        type: string
+        required: true
+        example: "2024-03"
+        description: Month in YYYY-MM format
+    responses:
+      200:
+        description: Budget status data
+      400:
+        description: Missing or invalid month parameter
+      401:
+        description: Not authenticated
+    """
     budget_month = request.args.get("month", "").strip()
     if not budget_month:
         return handle_app_error(ValidationError("Query param 'month' (YYYY-MM) is required."))
@@ -88,6 +217,27 @@ def budget_status():
 @analytics_bp.route("/report", methods=["GET"])
 @analyst_required
 def report():
+    """
+    Comprehensive report combining dashboard, trends and category breakdown. Requires analyst or admin role.
+    ---
+    tags:
+      - Analytics
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: query
+        name: months
+        type: integer
+        default: 6
+        description: Number of past months to include in trend data
+    responses:
+      200:
+        description: Full report data
+      401:
+        description: Not authenticated
+      403:
+        description: Analyst or admin role required
+    """
     try:
         months = int(request.args.get("months", 6))
     except (TypeError, ValueError):

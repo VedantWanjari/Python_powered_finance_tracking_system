@@ -63,6 +63,35 @@ def register():
 @auth_bp.route("/login", methods=["POST"])
 @validate_schema(UserLoginSchema)
 def login():
+    """
+    Authenticate and receive a session cookie.
+    ---
+    tags:
+      - Auth
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          required:
+            - username
+            - password
+          properties:
+            username:
+              type: string
+              example: demo
+            password:
+              type: string
+              example: "Demo@1234"
+    responses:
+      200:
+        description: Logged in successfully — session cookie is set automatically
+        schema:
+          $ref: '#/definitions/UserResponse'
+      401:
+        description: Invalid credentials
+    """
     try:
         data = g.validated_data
         user = UserService.authenticate_user(data["username"], data["password"])
@@ -79,6 +108,19 @@ def login():
 @auth_bp.route("/logout", methods=["POST"])
 @login_required
 def logout():
+    """
+    Clear the current session.
+    ---
+    tags:
+      - Auth
+    security:
+      - cookieAuth: []
+    responses:
+      200:
+        description: Logged out successfully
+      401:
+        description: Not authenticated
+    """
     user_id = g.current_user.id
     session.clear()
     logger.info("User %s logged out", user_id)
@@ -87,12 +129,59 @@ def logout():
 @auth_bp.route("/me", methods=["GET"])
 @login_required
 def get_me():
+    """
+    Return the current user's profile.
+    ---
+    tags:
+      - Auth
+    security:
+      - cookieAuth: []
+    responses:
+      200:
+        description: Current user profile
+        schema:
+          $ref: '#/definitions/UserResponse'
+      401:
+        description: Not authenticated
+    """
     return success_response(g.current_user.to_dict())
 
 @auth_bp.route("/me", methods=["PUT"])
 @login_required
 @validate_schema(UserUpdateSchema)
 def update_me():
+    """
+    Update the current user's email or username.
+    ---
+    tags:
+      - Auth
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          properties:
+            email:
+              type: string
+              example: newemail@example.com
+            username:
+              type: string
+              example: alice_new
+    responses:
+      200:
+        description: Profile updated
+        schema:
+          $ref: '#/definitions/UserResponse'
+      400:
+        description: Validation error
+      401:
+        description: Not authenticated
+      409:
+        description: Username or email already taken
+    """
     try:
         user = UserService.update_user(
             g.current_user.id,

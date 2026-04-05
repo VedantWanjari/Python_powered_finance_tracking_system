@@ -16,6 +16,30 @@ users_bp = Blueprint("users", __name__)
 @users_bp.route("/", methods=["GET"])
 @admin_required
 def list_users():
+    """
+    List all users (paginated). Admin only.
+    ---
+    tags:
+      - Users
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: query
+        name: page
+        type: integer
+        default: 1
+      - in: query
+        name: per_page
+        type: integer
+        default: 20
+    responses:
+      200:
+        description: Paginated list of users
+      401:
+        description: Not authenticated
+      403:
+        description: Admin role required
+    """
     try:
         page     = int(request.args.get("page", 1))
         per_page = min(int(request.args.get("per_page", 20)), 100)
@@ -28,6 +52,29 @@ def list_users():
 @users_bp.route("/<int:user_id>", methods=["GET"])
 @admin_required
 def get_user(user_id: int):
+    """
+    Get a specific user by ID. Admin only.
+    ---
+    tags:
+      - Users
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: user_id
+        type: integer
+        required: true
+        example: 5
+    responses:
+      200:
+        description: User object
+      401:
+        description: Not authenticated
+      403:
+        description: Admin role required
+      404:
+        description: User not found
+    """
     try:
         user = UserService.get_user(user_id)
         return success_response(user.to_dict())
@@ -38,6 +85,44 @@ def get_user(user_id: int):
 @admin_required
 @validate_schema(AdminUserUpdateSchema)
 def update_user(user_id: int):
+    """
+    Update a user's role or active status. Admin only.
+    ---
+    tags:
+      - Users
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: user_id
+        type: integer
+        required: true
+        example: 5
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          properties:
+            role:
+              type: string
+              enum: [viewer, analyst, admin]
+              example: analyst
+            is_active:
+              type: boolean
+              example: true
+    responses:
+      200:
+        description: User updated
+      400:
+        description: Validation error
+      401:
+        description: Not authenticated
+      403:
+        description: Admin role required
+      404:
+        description: User not found
+    """
     try:
         user = UserService.admin_update_user(
             user_id, g.validated_data, g.current_user.id
@@ -49,6 +134,29 @@ def update_user(user_id: int):
 @users_bp.route("/<int:user_id>", methods=["DELETE"])
 @admin_required
 def delete_user(user_id: int):
+    """
+    Deactivate (soft-delete) a user. Admin only.
+    ---
+    tags:
+      - Users
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: user_id
+        type: integer
+        required: true
+        example: 5
+    responses:
+      200:
+        description: User deactivated
+      401:
+        description: Not authenticated
+      403:
+        description: Admin role required
+      404:
+        description: User not found
+    """
     try:
         UserService.deactivate_user(user_id, g.current_user.id)
         return success_response(None, "User deactivated.")
@@ -58,6 +166,37 @@ def delete_user(user_id: int):
 @users_bp.route("/<int:user_id>/audit-log", methods=["GET"])
 @admin_required
 def user_audit_log(user_id: int):
+    """
+    Return a user's audit trail (paginated). Admin only.
+    ---
+    tags:
+      - Users
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: user_id
+        type: integer
+        required: true
+        example: 5
+      - in: query
+        name: page
+        type: integer
+        default: 1
+      - in: query
+        name: per_page
+        type: integer
+        default: 20
+    responses:
+      200:
+        description: Paginated audit log entries
+      401:
+        description: Not authenticated
+      403:
+        description: Admin role required
+      404:
+        description: User not found
+    """
     try:
         page     = int(request.args.get("page", 1))
         per_page = min(int(request.args.get("per_page", 20)), 100)

@@ -13,30 +13,37 @@ migrate = Migrate()
 limiter = Limiter(key_func=get_remote_address)
 
 SWAGGER_CONFIG = {
-    "title": "Finance Tracker API",
-    "uiversion": 3,
-    "version": "1.0.0",
-    "description": (
-        "A Python-powered personal finance tracking REST API.\n\n"
-        "**Authentication:** Session-based. Call `POST /api/auth/login` first — "
-        "the server sets an HTTP-only cookie that is sent automatically on every "
-        "subsequent request.\n\n"
-        "**Demo credentials (try it now!):**\n"
-        "- Username: `demo`\n"
-        "- Password: `Demo@1234`\n\n"
-        "Use the `/api/auth/login` endpoint below, then explore the rest of the API."
-    ),
-    "termsOfService": "",
-    "contact": {"name": "Vedant Wanjari"},
+    "headers": [],
+    "specs": [
+        {
+            "endpoint": "apispec",
+            "route": "/apispec.json",
+            "rule_filter": lambda rule: True,
+            "model_filter": lambda tag: True,
+        }
+    ],
+    "static_url_path": "/flasgger_static",
+    "swagger_ui": True,
     "specs_route": "/apidocs/",
+    "uiversion": 3,
 }
 
 SWAGGER_TEMPLATE = {
     "swagger": "2.0",
     "info": {
         "title": "Finance Tracker API",
-        "description": SWAGGER_CONFIG["description"],
+        "description": (
+            "A Python-powered personal finance tracking REST API.\n\n"
+            "**Authentication:** Session-based. Call `POST /api/auth/login` first — "
+            "the server sets an HTTP-only cookie that is sent automatically on every "
+            "subsequent request.\n\n"
+            "**Demo credentials:**\n"
+            "- Username: `demo`\n"
+            "- Password: `Demo@1234`\n\n"
+            "Use the `/api/auth/login` endpoint below, then explore the rest of the API."
+        ),
         "version": "1.0.0",
+        "contact": {"name": "Vedant Wanjari"},
     },
     "basePath": "/",
     "securityDefinitions": {
