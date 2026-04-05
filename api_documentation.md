@@ -1,6 +1,8 @@
 # API Documentation
 
-Base URL: `http://localhost:5000`
+Base URL: `https://<your-service-name>.onrender.com`
+
+> **Local development:** `http://localhost:5000`
 
 All endpoints return JSON with this envelope:
 ```json

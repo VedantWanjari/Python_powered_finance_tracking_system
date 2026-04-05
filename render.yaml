@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: finance-tracker-api
+    runtime: python
+    buildCommand: pip install -r requirements.txt && python setup_db.py
+    startCommand: gunicorn run:app
+    plan: free
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: finance-tracker-db
+          property: connectionString
+      - key: CACHE_TIMEOUT
+        value: "300"
+      - key: RATELIMIT_DEFAULT
+        value: "100 per minute"
+
+databases:
+  - name: finance-tracker-db
+    databaseName: finance_tracker
+    plan: free

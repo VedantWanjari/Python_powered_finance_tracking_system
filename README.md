@@ -40,14 +40,14 @@ The assignment left several design decisions open. Here is what was assumed and 
 
 ---
 
-##  Quick Start
+##  Quick Start (Local)
 
 ### 1 — Clone and create a virtual environment
 ```bash
 git clone <repo-url>
 cd Python_powered_finance_tracking_system
 python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
+source .venv/bin/activate
 ```
 
 ### 2 — Install dependencies
@@ -58,7 +58,6 @@ pip install -r requirements.txt
 ### 3 — Configure the environment
 ```bash
 cp .env.example .env
-# Edit .env and fill in your MySQL credentials and a secret key
 ```
 
 ### 4 — Create the MySQL database
@@ -73,27 +72,52 @@ python setup_db.py
 This creates all tables, seeds 10 default categories, and creates an admin account:
 - **username**: `admin`  **password**: `Admin@1234`
 
->  Change the admin password after your first login!
+> Change the admin password after your first login.
 
 ### 6 — Start the server
 ```bash
 python run.py
-# or: flask run
 ```
 
 Server runs at **http://localhost:5000**
 
 ---
 
+##  Deploy to Render (Free Tier)
+
+### Option A — One-click Blueprint (recommended)
+1. Push this repository to GitHub.
+2. Go to **https://dashboard.render.com** → **New → Blueprint**.
+3. Connect your GitHub repo. Render will detect `render.yaml` and create both the **web service** and the **PostgreSQL database** automatically.
+4. Click **Apply**. The first deploy runs `pip install -r requirements.txt && python setup_db.py` and starts the server with `gunicorn`.
+5. Your API is live at `https://<service-name>.onrender.com`.
+
+### Option B — Manual setup
+1. **Create a PostgreSQL database** on Render (New → PostgreSQL, free plan). Copy the **Internal Database URL**.
+2. **Create a Web Service** (New → Web Service, connect your repo):
+   - **Runtime:** Python
+   - **Build Command:** `pip install -r requirements.txt && python setup_db.py`
+   - **Start Command:** `gunicorn run:app`
+   - **Plan:** Free
+3. Under **Environment Variables** add:
+   | Key | Value |
+   |-----|-------|
+   | `FLASK_ENV` | `production` |
+   | `SECRET_KEY` | *(a long random string)* |
+   | `DATABASE_URL` | *(Internal Database URL from step 1)* |
+4. Click **Create Web Service**. Render deploys automatically on every `git push`.
+
+> **After you have your Render URL**, replace `http://localhost:5000` with `https://<your-service-name>.onrender.com` in all curl examples in this file and in `api_documentation.md`.
+
+---
+
 ##  First API Call
 
 ```bash
-# Login (saves session cookie to cookies.txt)
 curl -c cookies.txt -b cookies.txt -X POST http://localhost:5000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","password":"Admin@1234"}'
 
-# Create a transaction (uses the session cookie saved above)
 curl -b cookies.txt -X POST http://localhost:5000/api/transactions/ \
   -H "Content-Type: application/json" \
   -d '{
@@ -109,13 +133,8 @@ curl -b cookies.txt -X POST http://localhost:5000/api/transactions/ \
 ##  Running Tests
 
 ```bash
-# All tests
 pytest tests/ -v
-
-# With coverage report
 pytest tests/ --cov=app --cov-report=term-missing
-
-# Single test file
 pytest tests/test_auth.py -v
 ```
 
@@ -128,18 +147,18 @@ Tests use **SQLite in-memory** – no MySQL required.
 ```
 .
 ├── app/
-│   ├── __init__.py          # App factory (create_app)
-│   ├── config.py            # Dev / Test / Prod config
-│   ├── models/              # SQLAlchemy ORM models
-│   ├── routes/              # Flask blueprints (API endpoints)
-│   ├── services/            # Business logic layer
-│   ├── validators/          # Marshmallow input validation
-│   ├── middleware/          # Auth, RBAC, error handling, logging
-│   ├── cache/               # In-memory analytics cache
-│   └── utils/               # Helpers: logger, response formatter
-├── tests/                   # pytest test suite
-├── run.py                   # Entry point + CLI commands
-├── setup_db.py              # One-time DB initialisation
+│   ├── __init__.py
+│   ├── config.py
+│   ├── models/
+│   ├── routes/
+│   ├── services/
+│   ├── validators/
+│   ├── middleware/
+│   ├── cache/
+│   └── utils/
+├── tests/
+├── run.py
+├── setup_db.py
 ├── requirements.txt
 ├── .env.example
 ├── ARCHITECTURE.md
@@ -429,16 +448,9 @@ curl -b cookies.txt "http://localhost:5000/api/users/5/audit-log?page=1&per_page
 ###  One-Time CLI Setup
 
 ```bash
-# Initialize database tables
 flask init-db
-
-# Create an admin user interactively
 flask create-admin
-
-# Seed default categories and a demo user with sample transactions
 flask seed-data
-
-# Full setup in one command (tables + categories + admin/Admin@1234)
 python setup_db.py
 ```
 
