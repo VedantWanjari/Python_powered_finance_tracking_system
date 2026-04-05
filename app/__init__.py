@@ -43,7 +43,7 @@ SWAGGER_TEMPLATE = {
             "Use the `/api/auth/login` endpoint below, then explore the rest of the API."
         ),
         "version": "1.0.0",
-        "contact": {"name": "Vedant Wanjari"},
+        "contact": {"name": "demo_user"},
     },
     "basePath": "/",
     "securityDefinitions": {
@@ -67,8 +67,8 @@ SWAGGER_TEMPLATE = {
             "type": "object",
             "properties": {
                 "id":         {"type": "integer", "example": 1},
-                "username":   {"type": "string",  "example": "vedant"},
-                "email":      {"type": "string",  "example": "vedant@example.com"},
+                "username":   {"type": "string",  "example": "demo_user"},
+                "email":      {"type": "string",  "example": "demo_user@example.com"},
                 "role":       {"type": "string",  "enum": ["viewer", "analyst", "admin"], "example": "viewer"},
                 "is_active":  {"type": "boolean", "example": True},
                 "created_at": {"type": "string",  "format": "date-time", "example": "2024-01-01T00:00:00"},

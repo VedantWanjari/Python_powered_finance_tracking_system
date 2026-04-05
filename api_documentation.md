@@ -28,8 +28,8 @@ Create a new account.
 **Request:**
 ```json
 {
-  "username": "vedant",
-  "email": "vedant@example.com",
+  "username": "demo_user",
+  "email": "demo_user@example.com",
   "password": "Secure@123"
 }
 ```
@@ -39,7 +39,7 @@ Password rules: ≥8 chars, 1 uppercase, 1 digit, 1 special character.
 ```json
 {
   "status": "success",
-  "data": { "id": 1, "username": "vedant", "email": "vedant@example.com", "role": "viewer" }
+  "data": { "id": 1, "username": "demo_user", "email": "demo_user@example.com", "role": "viewer" }
 }
 ```
 
@@ -50,7 +50,7 @@ Authenticate and receive a session cookie.
 
 **Request:**
 ```json
-{ "username": "vedant", "password": "Secure@123" }
+{ "username": "demo_user", "password": "Secure@123" }
 ```
 
 **Response 200:** Returns user object + sets `session` cookie.
