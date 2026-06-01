@@ -1,7 +1,0 @@
-source: docs
-build:
-  generator: jekyll
-  output: /_site
-publishing:
-  branch: gh-pages
-  folder: /
