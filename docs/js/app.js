@@ -1,5 +1,9 @@
 import { api } from "./api-client.js";
 
+const DEFAULT_PAGE = 1;
+const DEFAULT_PER_PAGE = 20;
+const DEFAULT_TREND_MONTHS = 6;
+
 const state = {
   currentUser: null,
   transactions: [],
@@ -55,7 +59,12 @@ const resetTransactionForm = () => {
 };
 
 const loadTransactions = async () => {
-  const { data } = await api.transactions.list({ page: 1, per_page: 20, sort_by: "date", sort_order: "desc" });
+  const { data } = await api.transactions.list({
+    page: DEFAULT_PAGE,
+    per_page: DEFAULT_PER_PAGE,
+    sort_by: "date",
+    sort_order: "desc",
+  });
   state.transactions = data;
   ui.transactionsTableBody.innerHTML = data.length
     ? data
@@ -104,7 +113,7 @@ const loadAnalytics = async () => {
   });
 
   try {
-    const trends = await api.analytics.trends(6);
+    const trends = await api.analytics.trends(DEFAULT_TREND_MONTHS);
     if (state.charts.trend) state.charts.trend.destroy();
     state.charts.trend = new Chart(document.getElementById("trend-chart"), {
       type: "line",
