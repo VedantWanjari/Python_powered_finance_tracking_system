@@ -1,0 +1,10 @@
+title: Finance Tracking System
+email: demo@example.com
+description: Portfolio-ready frontend for Finance Tracking System API
+baseurl: ""
+url: ""
+theme: minima
+markdown: kramdown
+exclude:
+  - Gemfile
+  - Gemfile.lock
