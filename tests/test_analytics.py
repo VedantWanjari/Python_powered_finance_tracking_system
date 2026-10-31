@@ -22,6 +22,17 @@ class TestDashboard:
         resp = client.get("/api/analytics/dashboard")
         assert resp.status_code == 401
 
+    def test_insights_returns_explainable_metrics(
+        self, client, sample_user, sample_transactions
+    ):
+        login(client, "testuser", "Test@1234")
+        response = client.get("/api/analytics/insights")
+        assert response.status_code == 200
+        data = response.get_json()["data"]
+        assert "savings_rate" in data
+        assert "average_expense" in data
+        assert data["expense_trend"]["direction"] in {"up", "down", "flat"}
+
 class TestCategoryBreakdown:
     def test_category_breakdown_returns_percentages(self, client, sample_user, sample_transactions):
         login(client, "testuser", "Test@1234")

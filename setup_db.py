@@ -1,3 +1,5 @@
+import os
+
 from app import create_app, db
 from app.models.user import User
 from app.models.category import Category
@@ -36,16 +38,20 @@ def setup():
         print(f" {created} default categories seeded.")
 
         if not User.query.filter_by(username="admin").first():
+            admin_password = os.getenv("ADMIN_PASSWORD")
+            if not admin_password:
+                raise RuntimeError(
+                    "ADMIN_PASSWORD must be set before creating the admin user."
+                )
             admin = User(
                 username="admin",
                 email="admin@financetracker.local",
                 role="admin",
             )
-            admin.set_password("Admin@1234")
+            admin.set_password(admin_password)
             db.session.add(admin)
             db.session.commit()
-            print(" Default admin created → username: admin  password: Admin@1234")
-            print("     Change the admin password immediately after first login!")
+            print(" Default admin created. Use ADMIN_PASSWORD to log in.")
         else:
             print("Admin user already exists – skipping.")
 

@@ -12,6 +12,28 @@ from app.utils.response_formatter import success_response
 logger = logging.getLogger(__name__)
 analytics_bp = Blueprint("analytics", __name__)
 
+@analytics_bp.route("/insights", methods=["GET"])
+@login_required
+def insights():
+    """
+    Explainable financial insights derived from the user's transactions.
+    ---
+    tags:
+      - Analytics
+    security:
+      - cookieAuth: []
+    responses:
+      200:
+        description: Savings rate, average expense and spending trend insights
+      401:
+        description: Not authenticated
+    """
+    try:
+        data = AnalyticsService.get_insights(g.current_user.id)
+        return success_response(data, "Financial insights retrieved.")
+    except AppError as exc:
+        return handle_app_error(exc)
+
 @analytics_bp.route("/dashboard", methods=["GET"])
 @login_required
 def dashboard():

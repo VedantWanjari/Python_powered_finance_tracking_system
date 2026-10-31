@@ -1,5 +1,6 @@
 import logging
 from flask import Blueprint, request, g
+from marshmallow import ValidationError as MarshmallowValidationError
 
 from app.middleware.auth_middleware import login_required
 from app.middleware.role_middleware import analyst_required
@@ -15,6 +16,19 @@ from app.utils.response_formatter import success_response, paginated_response
 
 logger = logging.getLogger(__name__)
 transactions_bp = Blueprint("transactions", __name__)
+
+def _pagination_args():
+    try:
+        page = int(request.args.get("page", 1))
+        per_page = int(request.args.get("per_page", 20))
+    except (TypeError, ValueError):
+        raise ValidationError("page and per_page must be integers.")
+
+    if page < 1:
+        raise ValidationError("page must be at least 1.")
+    if per_page < 1:
+        raise ValidationError("per_page must be at least 1.")
+    return page, min(per_page, 100)
 
 @transactions_bp.route("/", methods=["GET"])
 @login_required
@@ -80,10 +94,9 @@ def list_transactions():
         description: Not authenticated
     """
     try:
-        page     = int(request.args.get("page", 1))
-        per_page = min(int(request.args.get("per_page", 20)), 100)
-    except ValueError:
-        return handle_app_error(ValidationError("page and per_page must be integers."))
+        page, per_page = _pagination_args()
+    except ValidationError as exc:
+        return handle_app_error(exc)
 
     sort_by    = request.args.get("sort_by", "date")
     sort_order = request.args.get("sort_order", "desc")
@@ -328,7 +341,9 @@ def bulk_create():
     if not request.is_json:
         return handle_app_error(ValidationError("Content-Type must be application/json."))
 
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
+    if not isinstance(data, dict):
+        return handle_app_error(ValidationError("Request body must be a JSON object."))
     items = data.get("transactions", [])
     if not isinstance(items, list) or not items:
         return handle_app_error(ValidationError("'transactions' must be a non-empty list."))
@@ -339,8 +354,8 @@ def bulk_create():
     for idx, item in enumerate(items):
         try:
             validated_items.append(schema.load(item))
-        except Exception as e:
-            errors[idx] = str(e)
+        except MarshmallowValidationError as exc:
+            errors[idx] = exc.messages
 
     if errors:
         return handle_app_error(ValidationError("Some transactions failed validation.", errors))
@@ -468,10 +483,9 @@ def search_transactions():
         return handle_app_error(ValidationError("Query parameter 'q' is required."))
 
     try:
-        page     = int(request.args.get("page", 1))
-        per_page = min(int(request.args.get("per_page", 20)), 100)
-    except ValueError:
-        return handle_app_error(ValidationError("page and per_page must be integers."))
+        page, per_page = _pagination_args()
+    except ValidationError as exc:
+        return handle_app_error(exc)
 
     transactions, total = TransactionService.list_transactions(
         user_id=g.current_user.id,

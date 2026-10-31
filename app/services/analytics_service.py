@@ -16,6 +16,47 @@ logger = logging.getLogger(__name__)
 class AnalyticsService:
 
     @staticmethod
+    def get_insights(user_id: int) -> dict:
+        cache_key = f"{user_id}:insights"
+        cached = analytics_cache.get(cache_key)
+        if cached is not None:
+            return cached
+
+        dashboard = AnalyticsService.get_dashboard(user_id)
+        categories = AnalyticsService.get_category_breakdown(user_id)
+        expenses = (
+            db.session.query(func.avg(Transaction.amount))
+            .filter(
+                Transaction.user_id == user_id,
+                Transaction.transaction_type == "expense",
+            )
+            .scalar()
+        )
+        trends = AnalyticsService.get_trend_analysis(user_id, 2)
+        previous, current = trends
+        if current["expenses"] > previous["expenses"]:
+            trend_direction = "up"
+        elif current["expenses"] < previous["expenses"]:
+            trend_direction = "down"
+        else:
+            trend_direction = "flat"
+
+        income = dashboard["total_income"]
+        result = {
+            "savings_rate": round(
+                ((income - dashboard["total_expenses"]) / income) * 100, 1
+            ) if income else None,
+            "average_expense": round(float(expenses or 0), 2),
+            "top_expense_category": categories[0] if categories else None,
+            "expense_trend": {
+                "direction": trend_direction,
+                "change": round(current["expenses"] - previous["expenses"], 2),
+            },
+        }
+        analytics_cache.set(cache_key, result)
+        return result
+
+    @staticmethod
     def get_dashboard(user_id: int) -> dict:
         cache_key = f"{user_id}:dashboard"
         cached = analytics_cache.get(cache_key)
