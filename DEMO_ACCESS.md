@@ -10,7 +10,7 @@ Configure `DEMO_PASSWORD` in the deployment environment. The account is:
 ```text
 Username: demo
 Role: analyst
-Password: the value of DEMO_PASSWORD
+Password: DEMO_PASSWORD
 ```
 
 The password is intentionally not stored in this repository. For Render,
