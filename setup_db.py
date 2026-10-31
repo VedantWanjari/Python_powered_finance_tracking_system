@@ -96,7 +96,12 @@ def setup():
                 db.session.commit()
                 print(f" {role.title()} demo user created. Use {password_variable} to log in.")
             else:
-                print(f"{username} user already exists – skipping.")
+                if password and not user.check_password(password):
+                    user.set_password(password)
+                    db.session.commit()
+                    print(f" {username} password synchronized from {password_variable}.")
+                else:
+                    print(f"{username} user already exists – skipping.")
             seeded_users.append(user)
 
         categories = {

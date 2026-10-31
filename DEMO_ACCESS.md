@@ -16,8 +16,9 @@ deployment environment. The seeded accounts are:
 
 Passwords are intentionally not stored in this repository. For Render, open
 the service's **Environment** settings, add all three variables, and redeploy.
-The setup script is idempotent: it creates missing accounts and sample
-transactions only when they do not already exist.
+The setup script is idempotent: it creates missing accounts, synchronizes an
+existing account's password when its environment variable changes, and creates
+sample transactions only when they do not already exist.
 
 Log in through Swagger at `POST /api/auth/login`. Swagger will retain the
 session cookie for subsequent authorized requests.
