@@ -114,10 +114,10 @@ class TransactionService:
             "budget_month",
         ]
         for field in updatable:
-            if data.get(field) is not None:
+            if field in data:
                 setattr(txn, field, data[field])
 
-        if data.get("tags") is not None:
+        if "tags" in data:
             txn.tags = data["tags"]
 
         txn.updated_at = datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
@@ -159,6 +159,7 @@ class TransactionService:
                 notes=item.get("notes"),
                 is_recurring=item.get("is_recurring", False),
                 recurring_frequency=item.get("recurring_frequency"),
+                budget_month=item.get("budget_month"),
             )
             txn.tags = item.get("tags", [])
             db.session.add(txn)

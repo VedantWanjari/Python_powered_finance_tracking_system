@@ -25,6 +25,7 @@ const ui = {
   profileForm: document.getElementById("profile-form"),
   kpiCards: document.getElementById("kpi-cards"),
   categoryList: document.getElementById("category-list"),
+  insightsList: document.getElementById("insights-list"),
 };
 
 const fmtCurrency = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
@@ -88,6 +89,7 @@ const loadTransactions = async () => {
 const loadAnalytics = async () => {
   const dashboard = await api.analytics.dashboard();
   const categories = await api.analytics.categories();
+  const insights = await api.analytics.insights();
 
   ui.kpiCards.innerHTML = [
     ["Income", dashboard.data.total_income],
@@ -101,6 +103,18 @@ const loadAnalytics = async () => {
   ui.categoryList.innerHTML = categories.data.length
     ? categories.data.map((item) => `<li><span>${item.category_name || "Uncategorized"}</span><strong>${fmtCurrency.format(item.total || 0)}</strong></li>`).join("")
     : "<li><span>No category data yet</span></li>";
+
+  const insightData = insights.data;
+  const topCategory = insightData.top_expense_category;
+  const trendLabel = insightData.expense_trend.direction === "flat"
+    ? "flat"
+    : `${insightData.expense_trend.direction} by ${fmtCurrency.format(Math.abs(insightData.expense_trend.change || 0))}`;
+  ui.insightsList.innerHTML = [
+    ["Savings rate", insightData.savings_rate === null ? "N/A" : `${insightData.savings_rate}%`],
+    ["Average expense", fmtCurrency.format(insightData.average_expense || 0)],
+    ["Top category", topCategory ? `${topCategory.category_name} (${fmtCurrency.format(topCategory.total)})` : "N/A"],
+    ["Recent expense trend", trendLabel],
+  ].map(([label, value]) => `<li><span>${label}</span><strong>${value}</strong></li>`).join("");
 
   if (state.charts.category) state.charts.category.destroy();
   state.charts.category = new Chart(document.getElementById("category-chart"), {

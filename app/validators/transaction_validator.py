@@ -62,24 +62,45 @@ class TransactionCreateSchema(Schema):
 
 class TransactionUpdateSchema(Schema):
 
-    amount = fields.Decimal(places=2, as_string=False, load_default=None)
+    amount = fields.Decimal(places=2, as_string=False)
     transaction_type = fields.String(
-        load_default=None,
         validate=validate.OneOf(["income", "expense"]),
     )
-    date            = fields.Date(load_default=None)
+    date            = fields.Date()
     description     = fields.String(
-        load_default=None, validate=validate.Length(min=1, max=255)
+        validate=validate.Length(min=1, max=255)
     )
-    category_id     = fields.Integer(load_default=None)
-    notes           = fields.String(load_default=None, allow_none=True)
-    tags            = fields.List(fields.String(), load_default=None)
-    is_recurring    = fields.Boolean(load_default=None)
-    recurring_frequency = fields.String(load_default=None, allow_none=True)
-    budget_month    = fields.String(load_default=None, allow_none=True)
+    category_id     = fields.Integer(allow_none=True)
+    notes           = fields.String(allow_none=True)
+    tags            = fields.List(fields.String(), allow_none=True)
+    is_recurring    = fields.Boolean()
+    recurring_frequency = fields.String(allow_none=True)
+    budget_month    = fields.String(allow_none=True)
 
     @validates("amount")
     def validate_amount(self, value):
-        if value is not None and value <= 0:
+        if value <= 0:
             raise ValidationError("Amount must be greater than zero.")
         return value
+
+    @validates("description")
+    def validate_description(self, value: str) -> str:
+        if not value.strip():
+            raise ValidationError("Description cannot be blank.")
+        return value.strip()
+
+    @validates("tags")
+    def validate_tags(self, value: list) -> list:
+        if value is None:
+            return value
+        if any(not tag.strip() for tag in value):
+            raise ValidationError("Each tag must be a non-empty string.")
+        return value
+
+    @post_load
+    def check_recurring_consistency(self, data: dict, **kwargs) -> dict:
+        if data.get("is_recurring") and not data.get("recurring_frequency"):
+            raise ValidationError(
+                {"recurring_frequency": ["Required when is_recurring is true."]}
+            )
+        return data

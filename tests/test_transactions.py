@@ -59,6 +59,11 @@ class TestListTransactions:
         items = resp.get_json()["data"]
         assert all(t["category_id"] == sample_category.id for t in items)
 
+    def test_list_transactions_rejects_invalid_pagination(self, client, sample_user):
+        login(client, "testuser", "Test@1234")
+        assert client.get("/api/transactions/?page=0").status_code == 400
+        assert client.get("/api/transactions/?per_page=0").status_code == 400
+
 class TestGetTransaction:
     def test_get_transaction_success(self, client, sample_user, sample_transactions, app):
         login(client, "testuser", "Test@1234")
@@ -84,6 +89,21 @@ class TestUpdateTransaction:
         resp = client.put(f"/api/transactions/{txn_id}", json={"description": "Updated"})
         assert resp.status_code == 200
         assert resp.get_json()["data"]["description"] == "Updated"
+
+    def test_update_transaction_can_clear_nullable_fields(
+        self, client, sample_user, sample_transactions, sample_category
+    ):
+        login(client, "testuser", "Test@1234")
+        txn_id = sample_transactions[0]["id"]
+        response = client.put(
+            f"/api/transactions/{txn_id}",
+            json={"category_id": None, "notes": None, "tags": []},
+        )
+        assert response.status_code == 200
+        data = response.get_json()["data"]
+        assert data["category_id"] is None
+        assert data["notes"] is None
+        assert data["tags"] == []
 
 class TestDeleteTransaction:
     def test_delete_transaction_success(self, client, sample_user, sample_transactions):
@@ -132,6 +152,20 @@ class TestBulkCreate:
             ]
         })
         assert resp.status_code == 400
+
+    def test_bulk_create_preserves_budget_month(self, client, sample_analyst, app):
+        login(client, "analyst", "Analyst@1234")
+        today = datetime.date.today().isoformat()
+        response = client.post("/api/transactions/bulk", json={
+            "transactions": [{
+                "amount": 200,
+                "transaction_type": "expense",
+                "date": today,
+                "description": "Budgeted coffee",
+                "budget_month": today[:7],
+            }]
+        })
+        assert response.status_code == 201
 
 class TestSearchTransactions:
     def test_search_returns_matching_results(self, client, sample_user, sample_transactions):

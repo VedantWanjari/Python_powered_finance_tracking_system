@@ -58,6 +58,7 @@ export class ApiClient {
 
   analytics = {
     dashboard: () => this.request("/api/analytics/dashboard"),
+    insights: () => this.request("/api/analytics/insights"),
     trends: (months = 6) => this.request("/api/analytics/trends", { params: { months } }),
     categories: () => this.request("/api/analytics/categories"),
   };

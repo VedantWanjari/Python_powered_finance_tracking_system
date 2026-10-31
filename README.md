@@ -3,6 +3,10 @@
 A portfolio-ready finance tracking project with:
 - **Flask REST API backend** (session-based auth)
 - **Static dashboard frontend** in `docs/` for GitHub Pages
+- Transaction CRUD, bulk import, CSV/JSON export, filters, search, and pagination
+- Role-based access control, audit logging, analytics, and in-memory caching
+- Explainable insights including savings rate, average expense, top category, and trends
+- Automated regression tests for authentication, transactions, validation, and analytics
 
 ## GitHub Pages Frontend
 
@@ -24,6 +28,7 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
+export ADMIN_PASSWORD='Use-a-strong-local-password'
 python setup_db.py
 python run.py
 ```
@@ -40,11 +45,8 @@ python -m http.server 8000
 
 Open **http://localhost:8000/docs/** and use the UI.
 
-## Demo Credentials
-
-After `setup_db.py`, default admin user:
-- username: `admin`
-- password: `Admin@1234`
+The setup script creates the `admin` account only when `ADMIN_PASSWORD` is set.
+Never commit `.env` or share this password.
 
 ## Running Tests
 
@@ -52,6 +54,9 @@ After `setup_db.py`, default admin user:
 pytest tests/ -v
 pytest tests/ --cov=app --cov-report=term-missing
 ```
+
+The project also includes a GitHub Actions workflow that runs the test suite on
+pushes and pull requests.
 
 ## GitHub Pages Deployment
 
