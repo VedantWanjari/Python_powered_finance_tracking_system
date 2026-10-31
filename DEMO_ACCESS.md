@@ -1,22 +1,32 @@
 # Demo access
 
-The deployment can seed a non-administrator demo account and sample
+The deployment can seed demo accounts for all three roles and sample
 transactions during `python setup_db.py`.
 
 ## Credentials
 
-Configure `DEMO_PASSWORD` in the deployment environment. The account is:
+Configure `ADMIN_PASSWORD`, `DEMO_PASSWORD`, and `VIEWER_PASSWORD` in the
+deployment environment. The seeded accounts are:
 
-```text
-Username: demo
-Role: analyst
-Password: DEMO_PASSWORD
-```
+| Username | Role | Password environment variable |
+| --- | --- | --- |
+| `admin` | admin | `ADMIN_PASSWORD` |
+| `demo` | analyst | `DEMO_PASSWORD` |
+| `viewer` | viewer | `VIEWER_PASSWORD` |
 
-The password is intentionally not stored in this repository. For Render,
-open the service's **Environment** settings, add `DEMO_PASSWORD`, and redeploy.
-The setup script is idempotent: it creates the demo user and sample
+Passwords are intentionally not stored in this repository. For Render, open
+the service's **Environment** settings, add all three variables, and redeploy.
+The setup script is idempotent: it creates missing accounts and sample
 transactions only when they do not already exist.
 
 Log in through Swagger at `POST /api/auth/login`. Swagger will retain the
 session cookie for subsequent authorized requests.
+
+For local development, `flask --app run seed-data` creates all three accounts
+with these temporary credentials:
+
+| Username | Role | Password |
+| --- | --- | --- |
+| `admin` | admin | `Admin@1234` |
+| `demo` | analyst | `Demo@1234` |
+| `viewer` | viewer | `Viewer@1234` |

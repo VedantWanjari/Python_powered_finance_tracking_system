@@ -64,11 +64,17 @@ def seed_data():
     click.echo(f" Created {created_cats} categories.")
 
     if User.query.count() == 0:
-        demo = User(username="demo", email="demo@example.com", role="analyst")
-        demo.set_password("Demo@1234")
-        db.session.add(demo)
+        demo_users = [
+            ("admin", "admin@example.com", "admin", "Admin@1234"),
+            ("demo", "demo@example.com", "analyst", "Demo@1234"),
+            ("viewer", "viewer@example.com", "viewer", "Viewer@1234"),
+        ]
+        for username, email, role, password in demo_users:
+            user = User(username=username, email=email, role=role)
+            user.set_password(password)
+            db.session.add(user)
         db.session.commit()
-        click.echo(" Demo user created: demo / Demo@1234")
+        click.echo(" Demo users created: admin / Admin@1234, demo / Demo@1234, viewer / Viewer@1234")
 
         demo_user = User.query.filter_by(username="demo").first()
         today = datetime.date.today()

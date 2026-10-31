@@ -16,6 +16,33 @@ DEMO_TRANSACTIONS = [
     (150, "expense", "Shopping", 15, "Household items"),
 ]
 
+
+DEMO_USERS = [
+    ("admin", "admin@financetracker.local", "admin", "ADMIN_PASSWORD"),
+    ("demo", "demo@financetracker.local", "analyst", "DEMO_PASSWORD"),
+    ("viewer", "viewer@financetracker.local", "viewer", "VIEWER_PASSWORD"),
+]
+
+
+def seed_transactions(user, categories):
+    if Transaction.query.filter_by(user_id=user.id).first():
+        print(f"Transactions for {user.username} already exist – skipping.")
+        return
+
+    today = datetime.date.today()
+    for amount, transaction_type, category_name, day, description in DEMO_TRANSACTIONS:
+        db.session.add(Transaction(
+            user_id=user.id,
+            amount=amount,
+            transaction_type=transaction_type,
+            category_id=categories[category_name].id,
+            date=today - datetime.timedelta(days=day),
+            description=description,
+        ))
+    db.session.commit()
+    print(f" Demo transactions seeded for {user.username}.")
+
+
 def setup():
     app = create_app()
     with app.app_context():
@@ -49,58 +76,35 @@ def setup():
         db.session.commit()
         print(f" {created} default categories seeded.")
 
-        if not User.query.filter_by(username="admin").first():
-            admin_password = os.getenv("ADMIN_PASSWORD")
-            if not admin_password:
-                raise RuntimeError(
-                    "ADMIN_PASSWORD must be set before creating the admin user."
-                )
-            admin = User(
-                username="admin",
-                email="admin@financetracker.local",
-                role="admin",
-            )
-            admin.set_password(admin_password)
-            db.session.add(admin)
-            db.session.commit()
-            print(" Default admin created. Use ADMIN_PASSWORD to log in.")
-        else:
-            print("Admin user already exists – skipping.")
+        seeded_users = []
+        for username, email, role, password_variable in DEMO_USERS:
+            user = User.query.filter_by(username=username).first()
+            password = os.getenv(password_variable)
 
-        demo_password = os.getenv("DEMO_PASSWORD")
-        demo = User.query.filter_by(username="demo").first()
-        if not demo and demo_password:
-            demo = User(
-                username="demo",
-                email="demo@financetracker.local",
-                role="analyst",
-            )
-            demo.set_password(demo_password)
-            db.session.add(demo)
-            db.session.commit()
-            print(" Demo user created. Use DEMO_PASSWORD to log in.")
-        elif not demo:
-            print("DEMO_PASSWORD not set – skipping demo user.")
+            if not user and not password:
+                if role == "admin":
+                    raise RuntimeError(
+                        f"{password_variable} must be set before creating the admin user."
+                    )
+                print(f"{password_variable} not set – skipping {role} demo user.")
+                continue
 
-        if demo and not Transaction.query.filter_by(user_id=demo.id).first():
-            categories = {
-                category.name: category
-                for category in Category.query.filter_by(is_default=True).all()
-            }
-            today = datetime.date.today()
-            for amount, transaction_type, category_name, day, description in DEMO_TRANSACTIONS:
-                db.session.add(Transaction(
-                    user_id=demo.id,
-                    amount=amount,
-                    transaction_type=transaction_type,
-                    category_id=categories[category_name].id,
-                    date=today - datetime.timedelta(days=day),
-                    description=description,
-                ))
-            db.session.commit()
-            print(" Demo transactions seeded.")
-        elif demo:
-            print("Demo transactions already exist – skipping.")
+            if not user:
+                user = User(username=username, email=email, role=role)
+                user.set_password(password)
+                db.session.add(user)
+                db.session.commit()
+                print(f" {role.title()} demo user created. Use {password_variable} to log in.")
+            else:
+                print(f"{username} user already exists – skipping.")
+            seeded_users.append(user)
+
+        categories = {
+            category.name: category
+            for category in Category.query.filter_by(is_default=True).all()
+        }
+        for user in seeded_users:
+            seed_transactions(user, categories)
 
         print("\n Database setup complete! You can now run: python run.py")
 
