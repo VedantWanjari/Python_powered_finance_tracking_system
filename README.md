@@ -29,6 +29,8 @@ source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
 export ADMIN_PASSWORD='Use-a-strong-local-password'
+export DEMO_PASSWORD='Demo@1234'
+export VIEWER_PASSWORD='Viewer@1234'
 python setup_db.py
 python run.py
 ```
@@ -45,8 +47,9 @@ python -m http.server 8000
 
 Open **http://localhost:8000/docs/** and use the UI.
 
-The setup script creates the `admin` account only when `ADMIN_PASSWORD` is set.
-Never commit `.env` or share this password.
+The setup script creates demo accounts when their password variables are set.
+Rerunning it synchronizes existing demo-account passwords with the current
+environment variables. Never commit `.env` or share these passwords.
 
 ## Running Tests
 
