@@ -1,8 +1,20 @@
 import os
+import datetime
 
 from app import create_app, db
 from app.models.user import User
 from app.models.category import Category
+from app.models.transaction import Transaction
+
+
+DEMO_TRANSACTIONS = [
+    (5000, "income", "Salary", 1, "Monthly salary"),
+    (120, "expense", "Food & Dining", 3, "Groceries"),
+    (50, "expense", "Transport", 5, "Bus pass"),
+    (200, "expense", "Entertainment", 8, "Concert tickets"),
+    (300, "expense", "Utilities", 12, "Electricity bill"),
+    (150, "expense", "Shopping", 15, "Household items"),
+]
 
 def setup():
     app = create_app()
@@ -54,6 +66,41 @@ def setup():
             print(" Default admin created. Use ADMIN_PASSWORD to log in.")
         else:
             print("Admin user already exists – skipping.")
+
+        demo_password = os.getenv("DEMO_PASSWORD")
+        demo = User.query.filter_by(username="demo").first()
+        if not demo and demo_password:
+            demo = User(
+                username="demo",
+                email="demo@financetracker.local",
+                role="analyst",
+            )
+            demo.set_password(demo_password)
+            db.session.add(demo)
+            db.session.commit()
+            print(" Demo user created. Use DEMO_PASSWORD to log in.")
+        elif not demo:
+            print("DEMO_PASSWORD not set – skipping demo user.")
+
+        if demo and not Transaction.query.filter_by(user_id=demo.id).first():
+            categories = {
+                category.name: category
+                for category in Category.query.filter_by(is_default=True).all()
+            }
+            today = datetime.date.today()
+            for amount, transaction_type, category_name, day, description in DEMO_TRANSACTIONS:
+                db.session.add(Transaction(
+                    user_id=demo.id,
+                    amount=amount,
+                    transaction_type=transaction_type,
+                    category_id=categories[category_name].id,
+                    date=today - datetime.timedelta(days=day),
+                    description=description,
+                ))
+            db.session.commit()
+            print(" Demo transactions seeded.")
+        elif demo:
+            print("Demo transactions already exist – skipping.")
 
         print("\n Database setup complete! You can now run: python run.py")
 
