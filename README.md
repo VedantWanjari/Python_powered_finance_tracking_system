@@ -1,6 +1,6 @@
 # Python-Powered Finance Tracking System
 
-A portfolio-ready finance tracking project with:
+A finance tracking project with:
 - **Flask REST API backend** (session-based auth)
 - **Static dashboard frontend** in `docs/` for GitHub Pages
 - Transaction CRUD, bulk import, CSV/JSON export, filters, search, and pagination
