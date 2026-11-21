@@ -25,7 +25,7 @@ class UserService:
         user = User(
             username=data["username"],
             email=data["email"],
-            role=data.get("role", "viewer"),
+            role="viewer",
         )
         user.set_password(data["password"])
 

@@ -95,6 +95,7 @@ class TestUserRegistrationSchema:
             "password": "Secure@123",
         })
         assert data["username"] == "ValidUser"
+        assert "role" not in data
 
     def test_user_validator_invalid_email(self):
         with pytest.raises(ValidationError) as exc_info:

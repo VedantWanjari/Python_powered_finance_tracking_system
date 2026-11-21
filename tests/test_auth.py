@@ -10,6 +10,16 @@ class TestRegister:
         data = resp.get_json()
         assert data["status"] == "success"
         assert data["data"]["username"] == "newuser"
+        assert data["data"]["role"] == "viewer"
+
+    def test_register_cannot_request_admin_role(self, client):
+        resp = client.post("/api/auth/register", json={
+            "username": "notadmin",
+            "email": "notadmin@example.com",
+            "password": "NewPass@1",
+            "role": "admin",
+        })
+        assert resp.status_code == 400
 
     def test_register_duplicate_username(self, client, sample_user):
         resp = client.post("/api/auth/register", json={

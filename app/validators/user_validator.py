@@ -13,7 +13,6 @@ class UserRegistrationSchema(Schema):
     )
     email = fields.Email(required=True)
     password = fields.String(required=True, load_only=True)
-    role = fields.String(load_default="viewer")
 
     @validates("username")
     def validate_username(self, value: str) -> str:
@@ -36,12 +35,6 @@ class UserRegistrationSchema(Schema):
             errors.append("Password must contain at least one special character.")
         if errors:
             raise ValidationError(errors)
-        return value
-
-    @validates("role")
-    def validate_role(self, value: str) -> str:
-        if value not in VALID_ROLES:
-            raise ValidationError(f"Role must be one of: {', '.join(sorted(VALID_ROLES))}.")
         return value
 
 class UserLoginSchema(Schema):
